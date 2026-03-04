@@ -20,23 +20,23 @@ comments: true
 
 | 文章 | 说明 | 状态 |
 |------|------|------|
-| [VSCode Copilot 配置](./blog/copilot.md) | 配置 Copilot Chat 使用本地局域网大模型 API | ✅ 完成 |
-| [flash.vscode 插件](./blog/flash-vscode.md) | 在 VSCode 中快速跳转到屏幕可见的任意一行 | ✅ 完成 |
+| [VSCode Copilot 配置](/p/copilot-config/) | 配置 Copilot Chat 使用本地局域网大模型 API | ✅ 完成 |
+| [flash.vscode 插件](/p/flash-vscode/) | 在 VSCode 中快速跳转到屏幕可见的任意一行 | ✅ 完成 |
 
 ### AI Agent 框架
 
 | 文章 | 说明 | 状态 |
 |------|------|------|
-| [Claude Code 配置](./blog/claude-code.md) | Anthropic 推出的本地运行 Agent 框架 | ✅ 完成 |
-| [iFlow CLI 配置](./blog/iflow.md) | 阿里推出的终端 Agent 框架 | ✅ 完成 |
+| [Claude Code 配置](/p/claude-code/) | Anthropic 推出的本地运行 Agent 框架 | ✅ 完成 |
+| [iFlow CLI 配置](/p/iflow-cli/) | 阿里推出的终端 Agent 框架 | ✅ 完成 |
 
 ### 终端工具
 
 | 文章 | 说明 | 状态 |
 |------|------|------|
-| [Zsh 配置](./blog/zsh.md) | Zsh 终端配置与优化 | 📝 TODO |
-| [reptyr 使用](./blog/reptyr.md) | 将运行中的进程转移到新的终端 | 📝 TODO |
-| [Tmux 使用](./blog/tmux.md) | 终端复用器 Tmux 配置与使用 | 📝 TODO |
+| [Zsh 配置](/p/zsh-config/) | Zsh 终端配置与优化 | 📝 TODO |
+| [reptyr 使用](/p/reptyr-guide/) | 将运行中的进程转移到新的终端 | 📝 TODO |
+| [Tmux 使用](/p/tmux-guide/) | 终端复用器 Tmux 配置与使用 | 📝 TODO |
 
 ---
 

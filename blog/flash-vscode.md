@@ -18,17 +18,17 @@ comments: true
 
 直接在 VSCode 插件商店下载 `flash.vscode` 插件
 
-![下载插件](/png/flash-vscode/download-flash.png)
+![下载插件](../png/flash-vscode/download-flash.png)
 
 ## 2. 使用方法
 
 `ctrl+shift+p` 面板搜索选择 `flash-vscode: Start Navigation`，然后键入光标想去的位置的单词，例如下面我输入的是 llm
 
-![输入关键词](/png/flash-vscode/input-keyword.png)
+![输入关键词](../png/flash-vscode/input-keyword.png)
 
 屏幕中所有可见的 llm 都被索引到并且后方出现一个字母标签，按下对应的字母标签光标就可以跳转到对应位置，例如按下位置 c，光标出现在左边分屏的第 265 行
 
-![跳转效果](/png/flash-vscode/jump-result.png)
+![跳转效果](../png/flash-vscode/jump-result.png)
 
 ## 3. 绑定快捷键
 

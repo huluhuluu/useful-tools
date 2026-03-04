@@ -110,7 +110,7 @@ Confirm create this provider? (y/N) y
 
 模型的 URL、ID、Token 令牌等获取参考 Copilot 配置文档。这里配置的 [DeepSeek 模型](https://api-docs.deepseek.com/zh-cn/guides/anthropic_api)，下面是加入 Claude Code 的测试结果：
 
-![测试结果](../png/test-result.png)
+![测试结果](../png/claude-code/test-result.png)
 
 ## 3. 配置 Skills
 
@@ -142,7 +142,7 @@ mkdir -p ~/.config/claude-code/skills/
 cp -r skill-name ~/.config/claude-code/skills/
 ```
 
-下面以 https://skillsmp.com/skills/tldraw-tldraw-claude-skills-write-tbp-skill-md 为例，右边有 install 命令：
+下面以 [write-skill](https://skillsmp.com/skills/tldraw-tldraw-claude-skills-write-tbp-skill-md) 为例，右边有 install 命令：
 
 ```bash
 ➜  npx skills add tldraw/tldraw # 中间的命令通过方向键和空格键选中
@@ -162,4 +162,4 @@ lrwxrwxrwx 1 root root   32 Feb  3 19:34 write-docs -> ../../.agents/skills/writ
 
 第一次使用会询问工具权限，如果不应该使用工具可以附上应该怎么做，例如 `Fetch(https://github.com/alibaba/MNN)` 这一步被取消了，理由是当前目录就在 MNN 中。
 
-![工具权限](../png/tool-permission.png)
+![工具权限](../png/claude-code/tool-permission.png)

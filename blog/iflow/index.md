@@ -20,7 +20,7 @@ comments: true
 
 安装 [NodeJS](https://nodejs.org/en/download)，选择对应系统与指令集的预编译安装包，下载后双击，同意协议并安装。
 
-![安装NodeJS](../png/iflow/install-nodejs.png)
+![安装NodeJS](png/install-nodejs.png)
 
 ## 2. 安装 iFlow
 

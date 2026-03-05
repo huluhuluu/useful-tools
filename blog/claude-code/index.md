@@ -110,7 +110,7 @@ Confirm create this provider? (y/N) y
 
 模型的 URL、ID、Token 令牌等获取参考 Copilot 配置文档。这里配置的 [DeepSeek 模型](https://api-docs.deepseek.com/zh-cn/guides/anthropic_api)，下面是加入 Claude Code 的测试结果：
 
-![测试结果](../png/claude-code/test-result.png)
+![测试结果](png/test-result.png)
 
 ## 3. 配置 Skills
 

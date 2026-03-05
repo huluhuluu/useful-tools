@@ -38,7 +38,7 @@ comments: true
 
 这里插件 ID 可以在插件商店选中插件右键复制
 
-![复制插件ID](../png/copilot/copy-extension-id.png)
+![复制插件ID](png/copy-extension-id.png)
 
 ## 2. 配置第三方 API
 

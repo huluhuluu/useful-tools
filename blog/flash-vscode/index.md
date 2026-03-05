@@ -18,7 +18,7 @@ comments: true
 
 直接在 VSCode 插件商店下载 `flash.vscode` 插件
 
-![下载插件](../png/flash-vscode/download-flash.png)
+![下载插件](png/download-flash.png)
 
 ## 2. 使用方法
 

@@ -162,4 +162,4 @@ lrwxrwxrwx 1 root root   32 Feb  3 19:34 write-docs -> ../../.agents/skills/writ
 
 第一次使用会询问工具权限，如果不应该使用工具可以附上应该怎么做，例如 `Fetch(https://github.com/alibaba/MNN)` 这一步被取消了，理由是当前目录就在 MNN 中。
 
-![工具权限](../png/claude-code/tool-permission.png)
+![工具权限](png/tool-permission.png)

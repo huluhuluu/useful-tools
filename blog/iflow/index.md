@@ -45,11 +45,11 @@ iflow
 2. **使用 API Key**：需要在[心流 API 平台](https://platform.iflow.cn/profile?tab=apiKey)设置，这个 Key 每周会刷新，过期后可以通过 `/auth` 命令刷新
 3. **使用 OpenAI 兼容的第三方 API**
 
-![登录界面](../png/iflow/login-page.png)
+![登录界面](png/login-page.png)
 
 配置好 Key 后，可以选择使用的模型：
 
-![选择模型](../png/iflow/choose-model.png)
+![选择模型](png/choose-model.png)
 
 ## 4. 常用命令
 

@@ -44,7 +44,7 @@ comments: true
 
 `copilot chat` 可以通过插件与其它自行购买**第三方**的 API 兼容。例如，在 VSCode 安装 `OAI Compatible Provider for Copilot` 插件，[仓库链接](https://github.com/JohnnyZ93/oai-compatible-copilot)，可以直接在 VSCode 的插件商店下载。
 
-![安装插件](../png/copilot/install-extension.png)
+![安装插件](png/install-extension.png)
 
 ### 2.1 获取 API 信息
 
@@ -52,19 +52,19 @@ comments: true
 
 - 在 ModelScope 社区的 **个人主页->访问控制** 里新建一个访问令牌
 
-![新建令牌](../png/copilot/create-token.png)
+![新建令牌](png/create-token.png)
 
 - 随后在模型库搜索需要的模型，支持推理 API 的就是可以使用 API 调用的模型
 
-![搜索模型](../png/copilot/search-model.png)
+![搜索模型](png/search-model.png)
 
 - 点击这个模型，进入这个模型的描述页面，右侧有 API 调用的接口，存在不同格式，按需选择。
 
-![模型详情](../png/copilot/model-details.png)
+![模型详情](png/model-details.png)
 
 - 查看代码范例，中有该模型接口的 base_url 和模型 ID 信息
 
-![API信息](../png/copilot/api-info.png)
+![API信息](png/api-info.png)
 
 ### 2.2 配置插件信息
 
@@ -72,15 +72,15 @@ comments: true
 
 **添加供应方 (Provider)**：需要填写 baseurl (上面出现的 base_url) 和 token (前面新建的访问令牌)，以及对应的 API 接口格式，例如 OpenAI 格式 (这里是查看代码范例时选择的格式)
 
-![配置Provider](../png/copilot/config-provider.png)
+![配置Provider](png/config-provider.png)
 
-![填写Provider信息](../png/copilot/fill-provider.png)
+![填写Provider信息](png/fill-provider.png)
 
 **添加模型**：需要填写前面添加的 provider (可以自定义) 和模型 ID (上面出现的模型 ID)
 
-![配置模型](../png/copilot/config-model.png)
+![配置模型](png/config-model.png)
 
-![填写模型信息](../png/copilot/fill-model.png)
+![填写模型信息](png/fill-model.png)
 
 目前插件支持 openai, openai-responses, ollama, anthropic, gemini 等多种格式，具体细节见[插件仓库](https://github.com/JohnnyZ93/oai-compatible-copilot)。
 
@@ -90,4 +90,4 @@ comments: true
 
 在 Copilot Chat 界面选择对应模型就可以使用对应模型的 Copilot Chat 了
 
-![选择模型](../png/copilot/select-model.png)
+![选择模型](png/select-model.png)

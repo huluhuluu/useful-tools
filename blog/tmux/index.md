@@ -8,6 +8,7 @@ slug: "tmux-guide"
 tags: ["Tmux", "终端", "终端复用"]
 categories: ["实用工具"]
 comments: true
+math: true
 ---
 
 # Tmux 使用指南

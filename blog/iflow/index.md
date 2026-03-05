@@ -8,6 +8,7 @@ slug: "iflow-cli"
 tags: ["iFlow", "Agent", "大模型"]
 categories: ["实用工具"]
 comments: true
+math: true
 ---
 
 # iFlow CLI 配置指南

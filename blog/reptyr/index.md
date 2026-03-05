@@ -8,6 +8,7 @@ slug: "reptyr-guide"
 tags: ["reptyr", "终端", "进程管理"]
 categories: ["实用工具"]
 comments: true
+math: true
 ---
 
 # reptyr 使用指南

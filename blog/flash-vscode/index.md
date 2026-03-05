@@ -8,6 +8,7 @@ slug: "flash-vscode"
 tags: ["VSCode", "效率工具"]
 categories: ["实用工具"]
 comments: true
+math: true
 ---
 
 # flash.vscode 插件

@@ -8,6 +8,7 @@ slug: "zsh-config"
 tags: ["Zsh", "终端", "Shell"]
 categories: ["实用工具"]
 comments: true
+math: true
 ---
 
 # Zsh 配置指南

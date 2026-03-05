@@ -8,6 +8,7 @@ slug: "copilot-config"
 tags: ["VSCode", "Copilot", "大模型"]
 categories: ["实用工具"]
 comments: true
+math: true
 ---
 
 # VSCode Copilot 配置指南

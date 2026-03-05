@@ -8,6 +8,7 @@ slug: "claude-code"
 tags: ["Claude Code", "Agent", "大模型"]
 categories: ["实用工具"]
 comments: true
+math: true
 ---
 
 # Claude Code 配置指南

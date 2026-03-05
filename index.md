@@ -8,6 +8,7 @@ slug: "useful-tools"
 tags: ["VSCode", "Copilot", "Claude Code", "iFlow", "终端工具"]
 categories: ["实用工具"]
 comments: true
+math: true
 ---
 
 # 实用工具

@@ -2,7 +2,7 @@
 title: "Ubuntu 环境配置备忘"
 date: 2026-03-26T17:00:00+08:00
 lastmod: 2026-03-26T17:00:00+08:00
-draft: false
+draft: true
 description: "Ubuntu 系统开发环境配置记录"
 slug: "ubuntu-config"
 tags: ["Ubuntu", "Linux", "环境配置"]

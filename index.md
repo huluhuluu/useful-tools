@@ -75,7 +75,7 @@ Android 平台终端环境，可在手机上运行 Linux 环境，支持 Python/
 
 #### Python 环境
 
-Python 版本管理 (pyenv/conda) 和虚拟环境工具 (venv/virtualenv/poetry) 的使用。
+推荐组合：conda 管理虚拟环境 + uv 管理包。uv 是 Astral 团队开发的极速包管理器，比 pip 快 10-100 倍。
 
 ### VSCode Copilot
 

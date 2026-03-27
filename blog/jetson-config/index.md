@@ -2,7 +2,7 @@
 title: "Jetson 环境配置备忘"
 date: 2026-03-26T17:00:00+08:00
 lastmod: 2026-03-26T17:00:00+08:00
-draft: false
+draft: true
 description: "NVIDIA Jetson 开发板环境配置记录"
 slug: "jetson-config"
 tags: ["Jetson", "NVIDIA", "边缘计算"]

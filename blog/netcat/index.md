@@ -63,22 +63,8 @@ tar --use-compress-program="pigz -p 8" -cvf file.tar.gz /path/to/directory
 # 接收端 (解压) file.tar.gz表示接收的文件名
 tar -xzvf file.tar.gz
 ```
-### 2.3 断点续传
 
-使用 `dd` 和 `seek` 实现简单续传：
-
-```bash
-# 查看已接收文件大小
-ls -l partial_file
-
-# 接收端 - 从指定位置继续接收
-nc -l -p 8888 >> partial_file
-
-# 发送端 - 从指定位置继续发送
-dd if=large_file bs=1 skip=<already_sent_bytes> | nc <receiver_ip> 8888
-```
-
-### 2.4 测试ip:port连通性
+### 2.3 测试ip:port连通性
 从发送端设备向目标接收端对应的ip+port发送消息，测试连通性
 ```bash
 # 接受端
@@ -88,7 +74,7 @@ nc -l -p <port>
 echo "hello" | nc <ip> <port>
 ```
 
-### 2.5 端口扫描
+### 2.4 端口扫描
 
 ```bash
 # 扫描单个端口
@@ -101,13 +87,13 @@ nc -zv target_ip 20-100
 nc -zv target_ip 80 443 8080
 ```
 
-### 2.6. 注意事项
+### 2.5 注意事项
 1. **安全性**：Netcat 传输不加密，敏感数据需要配合加密工具
 2. **防火墙**：确保防火墙开放对应端口
 
 ---
 
-## 参考链接
+## 3. 参考链接
 
 - [Netcat Wikipedia](https://en.wikipedia.org/wiki/Netcat)
 - [Nmap Ncat](https://nmap.org/ncat/)

@@ -79,7 +79,7 @@ SDK或者git方式参考[官方文档](https://modelscope.cn/docs/models/downloa
 
 ---
 
-## 参考链接
+## 3. 参考链接
 
 - [HuggingFace Hub 文档](https://huggingface.co/docs/hub/)
 - [ModelScope 文档](https://modelscope.cn/docs)

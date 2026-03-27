@@ -5,7 +5,7 @@ lastmod: 2026-03-26T17:00:00+08:00
 draft: false
 description: "Python 环境管理工具介绍与配置"
 slug: "python-env"
-tags: ["Python", "conda", "pyenv", "venv"]
+tags: ["Python", "conda", "uv"]
 categories: ["实用工具"]
 comments: true
 math: true
@@ -94,12 +94,59 @@ rm -rf myenv
 
 ## 3. 包管理工具
 
+### 3.1 uv
+
+[uv](https://github.com/astral-sh/uv) 是 Astral 团队开发的极速 Python 包管理器，用 Rust 编写，比 pip 快 10-100 倍。
+
+#### 安装
+
+```bash
+# Linux/macOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 或通过 pip
+pip install uv
+```
+
+#### 常用命令
+
+```bash
+# 安装包
+uv pip install numpy
+
+# 从 requirements.txt 安装
+uv pip install -r requirements.txt
+
+# 指定版本
+uv pip install numpy==1.26.0
+
+# 卸载包
+uv pip uninstall numpy
+
+# 查看已安装包
+uv pip list
+
+# 导出依赖
+uv pip freeze > requirements.txt
+```
+
+#### 配合 conda 使用
+
+推荐组合：conda 管理虚拟环境 + uv 管理包
+
+```bash
+# 创建 conda 环境
+conda create -n myenv python=3.10
+conda activate myenv
+
+# 使用 uv 安装包 (速度更快)
+uv pip install torch torchvision
+```
 
 ---
 
 ## 参考链接
 
-- [pyenv GitHub](https://github.com/pyenv/pyenv)
+- [uv GitHub](https://github.com/astral-sh/uv)
+- [uv 官方文档](https://docs.astral.sh/uv/)
 - [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-- [Poetry 文档](https://python-poetry.org/)
-- [pipx GitHub](https://github.com/pypa/pipx)

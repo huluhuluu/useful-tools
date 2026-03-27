@@ -30,7 +30,7 @@ chmod a+x hfd.sh
 ```
 
 寻找对应模型的id，左边绿色框内表示模型id，右边红色框可以一键复制模型id
-![](./png/屏幕截图%202026-03-27%20232853.png)
+![HuggingFace 模型 ID 位置](./png/hf-model-id.png)
 
 在需要下载模型的目录中执行模型下载命令：
 ```bash
@@ -54,9 +54,9 @@ chmod a+x hfd.sh
 pip install modelscope # 先在指定虚拟环境下安装modelscope包
 ```
 然后找到想要下载的模型的界面，旁边有下载指引
-![](./png/屏幕截图%202026-03-27%20230714.png)
+![ModelScope 下载指引入口](./png/ms-download-guide.png)
 在下载指引可以看到下载教程，
-![](./png/屏幕截图%202026-03-27%20231345.png)
+![ModelScope 模型 ID 位置](./png/ms-model-id.png)
 通常来说，命令行下载只需要找到**模型id**，如上图左侧，随后执行下载命令
 ```bash
 modelscope download --model Qwen/Qwen3.5-9B # 最后是模型id，确保当前命令行的python环境有modescope

@@ -13,39 +13,39 @@ math: true
 
 # Python 环境配置工具备忘
 
-Python 环境管理是开发中的重要环节，本文介绍常用的 `miniforge`虚拟环境管理+`uv`包管理工具。
+`Python`环境管理是开发中的重要环节，本文介绍常用的 `miniforge`虚拟环境管理+`uv`包管理工具。
 
-## 1. 版本管理工具
+## 1. 虚拟环境管理工具 miniforge
 
-### 1.1 conda
+[miniforge](https://conda-forge.org/miniforge/) 是 Anaconda/Miniconda 提供的包和环境管理器。
 
-`conda` 是 Anaconda/Miniconda 提供的包和环境管理器。
-
-#### 安装 Miniconda
+### 安装 miniforge
 
 ```bash
 # 下载安装脚本
-wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh
+wget https://mirrors.zju.edu.cn/miniforge/Miniforge3-Linux-x86_64.sh
 
-# 安装
-bash Miniconda3-latest-Linux-x86_64.sh
+# 安装并且删除
+./Miniforge3-Linux-x86_64.sh
+rm -rf Miniforge3-Linux-x86_64.sh
 
-# 初始化
+
+# 重新打开终端初始化
 conda init bash
 source ~/.bashrc
 ```
 
-#### 配置镜像源
+### 1.2 配置镜像源
 
 ```bash
 # 清华源
-conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
-conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free
-conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
-conda config --set show_channel_urls yes
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda/
 ```
 
-#### 常用命令
+### 1.3 常用命令
 
 ```bash
 # 创建环境
@@ -70,36 +70,12 @@ conda env export > environment.yml
 conda env create -f environment.yml
 ```
 
-## 2. 虚拟环境工具
-
-### 2.1 venv
-
-Python 内置的虚拟环境工具 
-
-```bash
-# 创建虚拟环境
-python -m venv myenv
-
-# 激活环境
-# Linux/macOS
-source myenv/bin/activate
-
-# 退出环境
-deactivate
-
-# 删除环境
-rm -rf myenv
-```
-
-
-## 3. 包管理工具
-
-### 3.1 uv
+## 2. 包管理工具 uv
 
 [uv](https://github.com/astral-sh/uv) 是 Astral 团队开发的极速 Python 包管理器，用 Rust 编写，比 pip 快 10-100 倍。
 
-#### 安装
-
+### 2.1 安装
+可以通过`shell`安装或者`pip`安装
 ```bash
 # Linux/macOS
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -108,7 +84,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 pip install uv
 ```
 
-#### 常用命令
+### 2.2 常用命令
 
 ```bash
 # 安装包
@@ -130,7 +106,7 @@ uv pip list
 uv pip freeze > requirements.txt
 ```
 
-#### 配合 conda 使用
+### 2.3 配合 conda 使用
 
 推荐组合：conda 管理虚拟环境 + uv 管理包
 
@@ -149,4 +125,4 @@ uv pip install torch torchvision
 
 - [uv GitHub](https://github.com/astral-sh/uv)
 - [uv 官方文档](https://docs.astral.sh/uv/)
-- [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+- [Miniforge](https://conda-forge.org/miniforge/)

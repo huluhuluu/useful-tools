@@ -11,26 +11,33 @@ comments: true
 math: true
 ---
 
-# Zsh 配置指南
+# Zsh 配置指南备忘
 
-📝 **TODO**: 待补充内容
-
-## 概述
-
-Zsh (Z Shell) 是一个功能强大的 Unix Shell，具有丰富的自动补全、语法高亮、主题定制等特性。
+zsh 是一个功能强大的 Unix Shell，具有丰富的自动补全、语法高亮、主题定制等特性。本文将介绍如何安装和配置 zsh，以及一些实用的插件推荐。
 
 ## 安装
+```bash
+sudo apt install zsh -y
+```
 
-<!-- TODO: 添加安装步骤 -->
+## 配置自动补全和语法高亮
+```bash
+# 配置 zsh
+git clone https://gitee.com/mirror-hub/ohmyzsh.git ~/.oh-my-zsh
+# 插件
+cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+git clone https://gitee.com/mirror-hub/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+git clone https://gitee.com/mirror-hub/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+# 启用插件
+echo "autoload -U compinit && compinit" >> ~/.zshrc
+sed -i '/^plugins=/c\plugins=(git sudo z zsh-syntax-highlighting zsh-autosuggestions)' ~/.zshrc
+# 自动切换zsh
+touch ~/.bash_profile
+changeshell="exec $(which zsh) -l"
+echo "$changeshell" >> ~/.bash_profile
+```
 
-## 配置
-
-<!-- TODO: 添加配置说明 -->
-
-## 插件推荐
-
-<!-- TODO: 添加插件推荐 -->
-
+`.zshrc`是`zsh`的配置文件，可以通过修改该文件来配置`zsh`。例如，启用插件、设置主题、配置环境变量等。修改完成后，执行`source ~/.zshrc`命令使配置生效。
 ## 参考资料
 
 - [Zsh 官方网站](https://www.zsh.org/)

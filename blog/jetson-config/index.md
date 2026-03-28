@@ -15,249 +15,166 @@ math: true
 
 NVIDIA Jetson 系列 (Nano/Xavier NX/Orin) 边缘计算开发板环境配置记录。
 
-## 1. 系统安装
-
-### 1.1 烧录系统
-
-使用 [NVIDIA SDK Manager](https://developer.nvidia.com/embedded/jetpack) 或 `balenaEtcher` 烧录系统镜像。
-
-**JetPack 组件**：
-- L4T (Linux for Tegra)
-- CUDA
-- cuDNN
-- TensorRT
-- VisionWorks
-- OpenCV
-
-### 1.2 首次启动配置
-
+## 1. 新用户
+创建新用户并且复制ssh公钥，同时添加到jtop分组中
 ```bash
-# 完成初始化设置
-sudo apt update && sudo apt upgrade -y
+sudo adduser huluhuluu
+sudo usermod -aG jtop huluhuluu
+sudo usermod -aG sudo huluhuluu # 添加sudo权限 慎重
+sudo su huluhuluu
+cd /home/huluhuluu
+mkdir .ssh && cd .ssh
+touch authorized_keys
+vim authorized_keys
 ```
 
-## 2. 基础配置
-
-### 2.1 更换国内源
-
-Jetson 使用 Ubuntu arm64 架构：
-
+## 2. 安装常用包
 ```bash
-# 备份
-sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+# 安装常用工具
+sudo apt-get install zsh gzip netcat pv tmux nvtop htop lsof aria2 pigz git-lfs -y
 
-# 清华源 (Ubuntu 20.04, arm64)
-sudo tee /etc/apt/sources.list << EOF
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ focal main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ focal-updates main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ focal-backports main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ focal-security main restricted universe multiverse
-EOF
-
-sudo apt update
+# 配置 zsh
+git clone https://gitee.com/mirror-hub/ohmyzsh.git ~/.oh-my-zsh
+# 插件
+cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+git clone https://gitee.com/mirror-hub/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+git clone https://gitee.com/mirror-hub/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+# 启用插件
+echo "autoload -U compinit && compinit" >> ~/.zshrc
+sed -i '/^plugins=/c\plugins=(git sudo z zsh-syntax-highlighting zsh-autosuggestions)' ~/.zshrc
+# 自动切换zsh
+touch ~/.bash_profile
+changeshell="exec $(which zsh) -l"
+echo "$changeshell" >> ~/.bash_profile
 ```
 
-### 2.2 安装基础工具
-
+### 2.1 安装minifoge
 ```bash
-sudo apt install -y \
-    build-essential \
-    cmake \
-    git \
-    curl \
-    wget \
-    vim \
-    htop \
-    tree
+# 下载aarch版安装脚本
+wget https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-aarch64.sh
+# 安装和删除
+bash Miniforge3-Linux-aarch64.sh
+rm -rf Miniforge3-Linux-aarch64.sh
+# 设置环境变量
+echo 'source ~/miniforge3/etc/profile.d/conda.sh'  |  tee -a ~/.zshrc # 这里的路径注意要匹配
+
+# 可执行权限
+chmod u+x ~/miniforge3/etc/profile.d/conda.sh
+
+# ！！重要， 配置CUDA的环境变量
+vim ~/.zshrc
+export PATH="/usr/local/cuda/bin:$PATH"
+export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+source ~/.zshrc
+
+# 初始化并且配置清华源
+conda init
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda/
 ```
 
-### 2.3 扩展 swap 空间
+### 2.2 pytorch安装
+需要特定版本的pytorch，参考[版本兼容表](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048)和[官方安装教程](https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html#)
 
-Jetson 内存有限，建议扩展 swap：
-
+- 先查看jetpack版本和cuda版本
 ```bash
-# 创建 8G swap 文件
-sudo fallocate -l 8G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
+(base) ➜  ~ sudo apt-cache show nvidia-jetpack  # 查看jetpack版本命令
+Package: nvidia-jetpack
+Source: nvidia-jetpack (6.0) # jetpack版本
+Version: 6.0+b106
+Architecture: arm64
+Maintainer: NVIDIA Corporation
+Installed-Size: 194
+Depends: nvidia-jetpack-runtime (= 6.0+b106), nvidia-jetpack-dev (= 6.0+b106)
+Homepage: http://developer.nvidia.com/jetson
+Priority: standard
+Section: metapackages
+Filename: pool/main/n/nvidia-jetpack/nvidia-jetpack_6.0+b106_arm64.deb
+Size: 29296
+SHA256: 561d38f76683ff865e57b2af41e303be7e590926251890550d2652bdc51401f8
+SHA1: ef3fca0c1b5c780b2bad1bafae6437753bd0a93f
+MD5sum: 95de21b4fce939dee11c6df1f2db0fa5
+Description: NVIDIA Jetpack Meta Package
+Description-md5: ad1462289bdbc54909ae109d1d32c0a8
 
-# 永久生效
-echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+Package: nvidia-jetpack
+Source: nvidia-jetpack (6.0)
+Version: 6.0+b87
+Architecture: arm64
+Maintainer: NVIDIA Corporation
+Installed-Size: 194
+Depends: nvidia-jetpack-runtime (= 6.0+b87), nvidia-jetpack-dev (= 6.0+b87)
+Homepage: http://developer.nvidia.com/jetson
+Priority: standard
+Section: metapackages
+Filename: pool/main/n/nvidia-jetpack/nvidia-jetpack_6.0+b87_arm64.deb
+Size: 29298
+SHA256: 70be95162aad864ee0b0cd24ac8e4fa4f131aa97b32ffa2de551f1f8f56bc14e
+SHA1: 36926a991855b9feeb12072694005c3e7e7b3836
+MD5sum: 050cb1fd604a16200d26841f8a59a038
+Description: NVIDIA Jetpack Meta Package
+Description-md5: ad1462289bdbc54909ae109d1d32c0a8
+
+N: Ignoring file 'cuda-tegra-ubuntu2204-12-2-local.list.backup' in directory '/etc/apt/sources.list.d/' as it has an invalid filename extension
+
+(base) ➜  ~ nvcc --version  # 查看cuda版本命令
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Tue_Aug_15_22:08:11_PDT_2023
+Cuda compilation tools, release 12.2, V12.2.140
+Build cuda_12.2.r12.2/compiler.33191640_0 # cuda 版本
 ```
 
-## 3. 性能模式配置
+- 根据`jetpack`版本和`cuda`版本查找对应的`pytorch`版本与下载链接,以`nvidia-jetpack (6.0)和cuda12.2`为例，在[版本兼容表](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048)中找到对应的`pytorch`版本, 右键复制下载链接
+    ![PyTorch 版本兼容表](./png/pytorch-version-table.png)
 
-### 3.1 使用 jetson_clocks
-
+- 指定`pyhton`版本创建虚拟环境，安装对应`pytorch`
 ```bash
-# 启用最大性能模式
-sudo jetson_clocks
+# 创建/启动虚拟环境 需要制定python版本！！
+sudo apt-get -y update; 
+sudo apt-get install -y  python3-pip libopenblas-dev;
 
-# 开机自动启用
-sudo systemctl enable jetson_clocks
+# 下面的链接换成上一步复制的链接
+export TORCH_INSTALL=https://developer.download.nvidia.cn/compute/redist/jp/v512/pytorch/torch-2.1.0a0+41361538.nv23.06-cp38-cp38-linux_aarch64.whl
+python3 -m pip install --upgrade pip; 
+python3 -m pip install --no-cache $TORCH_INSTALL
 ```
 
-### 3.2 电源模式
-
+- 验证，`python`交互模式中输入，能够正常输出gpu数量/gpu型号安装成功
 ```bash
-# 查看当前模式
-sudo nvpmodel -q
-
-# 设置最大性能模式 (15W/30W 取决于设备)
-sudo nvpmodel -m 0
-
-# 设置省电模式
-sudo nvpmodel -m 1
+import torch
+print(torch.__version__)
+torch.cuda.device_count()
+torch.cuda.get_device_name(0)
 ```
+- **注意**：后续缺失的包尽量用**pip**安装
 
-### 3.3 性能监控
+## 2.3. 常用命令
 
 ```bash
-# 实时监控
-sudo tegrastats
-
-# 或使用 jtop
-sudo pip3 install jetson-stats
+# 性能监控
 sudo jtop
+htop # CPU监控
+
+# 电源调优
+sudo nvpmodel -q --verbose # 查看当前模式和频率
+sudo nvpmodel -q   # 查看当前模式
+sudo nvpmodel -m 0 # 设置最大性能模式 (15W/30W 取决于设备)
+sudo nvpmodel -m 1 # 设置省电模式
+
+# 频率调优
+sudo jetson_clocks # 启用最高性能
+sudo jetson_clocks --restore # 恢复默认频率
+sudo jetson_clocks --show # 查看当前状态
 ```
-
-## 4. GPU 环境
-
-### 4.1 CUDA 环境变量
-
-JetPack 已预装 CUDA，需配置环境变量：
-
-```bash
-echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
-echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
-source ~/.bashrc
-
-# 验证
-nvcc --version
-```
-
-### 4.2 TensorRT
-
-JetPack 已安装 TensorRT，测试：
-
-```bash
-# 查看版本
-dpkg -l | grep nvinfer
-
-# 示例位置
-/usr/src/tensorrt/
-```
-
-## 5. Python 环境
-
-### 5.1 安装 pip
-
-```bash
-sudo apt install -y python3-pip python3-dev
-sudo pip3 install --upgrade pip
-```
-
-### 5.2 虚拟环境
-
-推荐使用 `virtualenv`：
-
-```bash
-sudo pip3 install virtualenv virtualenvwrapper
-
-echo 'export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3' >> ~/.bashrc
-echo 'export WORKON_HOME=$HOME/.virtualenvs' >> ~/.bashrc
-echo 'source /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc
-source ~/.bashrc
-
-# 创建虚拟环境
-mkvirtualenv myenv
-workon myenv
-```
-
-### 5.3 常用 Python 库
-
-```bash
-# PyTorch for Jetson
-# 参考: https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048
-wget https://developer.download.nvidia.com/compute/redist/jp/v502/pytorch/torch-2.0.0+nv23.05-cp38-cp38-linux_aarch64.whl
-pip3 install torch-2.0.0+nv23.05-cp38-cp38-linux_aarch64.whl
-
-# 其他库
-pip3 install numpy opencv-python-headless matplotlib
-```
-
-## 6. 深度学习部署
-
-### 6.1 安装 PyCUDA
-
-```bash
-pip3 install pycuda
-```
-
-### 6.2 ONNX Runtime
-
-```bash
-# 安装 ONNX Runtime GPU 版本
-pip3 install onnxruntime-gpu
-```
-
-### 6.3 模型转换
-
-使用 TensorRT 进行模型优化：
-
-```bash
-# ONNX -> TensorRT
-trtexec --onnx=model.onnx --saveEngine=model.trt --fp16
-```
-
-## 7. 常用配置
-
-### 7.1 开启 VNC 远程桌面
-
-```bash
-# 安装 VNC Server
-sudo apt install -y vino
-
-# 配置 VNC
-gsettings set org.gnome.Vino prompt-enabled false
-gsettings set org.gnome.Vino require-encryption false
-
-# 设置密码
-sudo apt install -y libvncserver-dev
-sudo x11vnc -storepasswd /etc/vncpasswd
-
-# 启动 VNC
-/usr/lib/vino/vino-server
-```
-
-### 7.2 自动挂载 SD 卡
-
-```bash
-# 查看设备
-lsblk
-
-# 挂载
-sudo mkdir -p /mnt/sdcard
-sudo mount /dev/mmcblk1p1 /mnt/sdcard
-
-# 开机自动挂载
-echo '/dev/mmcblk1p1 /mnt/sdcard auto defaults 0 2' | sudo tee -a /etc/fstab
-```
-
-### 7.3 关闭 GUI (无头模式)
-
-```bash
-# 关闭图形界面
-sudo systemctl set-default multi-user.target
-
-# 恢复图形界面
-sudo systemctl set-default graphical.target
-```
+可以在jtop中查看当前模式和频率,启动 jtop 后按 → 切换到 CTRL 页面可以看到左下角的`NV Power Mode`， 同时可以看到`jetpack`版本，在`7INFO`界面可以看到`cuda`版本等信息
+![jtop 信息界面](./png/jtop-info.png)
 
 ---
 
-## 参考链接
+## 3. 参考链接
 
 - [NVIDIA JetPack](https://developer.nvidia.com/embedded/jetpack)
 - [Jetson 开发者论坛](https://forums.developer.nvidia.com/)

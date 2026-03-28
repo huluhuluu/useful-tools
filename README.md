@@ -34,6 +34,9 @@
 | [Git 命令备忘](blog/git-commands/index.md) | Git 常用命令速查 | ✅ 完成 |
 | [Linux 常用命令备忘](blog/linux-commands/index.md) | Linux 日常开发常用命令速查 | ✅ 完成 |
 | [SSH 命令备忘](blog/ssh-guide/index.md) | SSH 密钥管理、配置文件、端口转发等 | ✅ 完成 |
+| [Vim 常用命令备忘](blog/vim-commands/index.md) | Vim 日常开发常用命令速查 | ✅ 完成 |
+| [FZF 使用备忘](blog/fzf/index.md) | 命令行模糊搜索工具，提升终端效率 | ✅ 完成 |
+| [Zoxide 使用备忘](blog/zoxide/index.md) | 更智能的 cd 命令，自动记忆常用目录 | ✅ 完成 |
 | [Zsh 配置](blog/zsh/index.md) | Zsh 终端配置与优化 | ✅ 完成 |
 | [reptyr 使用](blog/reptyr/index.md) | 将运行中的进程转移到新的终端 | 📝 TODO |
 | [Tmux 使用](blog/tmux/index.md) | 终端复用器 Tmux 配置与使用 | ✅ 完成 |

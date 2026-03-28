@@ -2,7 +2,7 @@
 title: "Termux 环境配置备忘"
 date: 2026-03-26T17:00:00+08:00
 lastmod: 2026-03-26T17:00:00+08:00
-draft: true
+draft: false
 description: "Android Termux 终端环境配置记录"
 slug: "termux-config"
 tags: ["Termux", "Android", "移动开发"]

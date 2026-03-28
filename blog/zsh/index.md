@@ -2,7 +2,7 @@
 title: "Zsh 配置指南"
 date: 2026-03-04T12:00:00+08:00
 lastmod: 2026-03-04T12:00:00+08:00
-draft: true
+draft: false
 description: "Zsh 终端配置与优化"
 slug: "zsh-config"
 tags: ["Zsh", "终端", "Shell"]

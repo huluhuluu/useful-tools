@@ -47,7 +47,7 @@ math: true
 | [Git 命令备忘](/p/git-commands/) | Git 常用命令速查 | ✅ 完成 |
 | [Linux 常用命令备忘](/p/linux-commands/) | Linux 日常开发常用命令速查 | ✅ 完成 |
 | [SSH 命令备忘](/p/ssh-guide/) | SSH 密钥管理、配置文件、端口转发等 | ✅ 完成 |
-| [Zsh 配置](/p/zsh-config/) | Zsh 终端配置与优化 | 📝 TODO |
+| [Zsh 配置](/p/zsh-config/) | Zsh 终端配置与优化 | ✅ 完成 |
 | [reptyr 使用](/p/reptyr-guide/) | 将运行中的进程转移到新的终端 | 📝 TODO |
 | [Tmux 使用](/p/tmux-guide/) | 终端复用器 Tmux 配置与使用 | ✅ 完成 |
 | [Netcat 局域网传输](/p/netcat/) | Netcat 网络工具在局域网文件传输中的应用 | ✅ 完成 |

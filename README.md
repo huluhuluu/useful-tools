@@ -10,8 +10,11 @@
 |------|------|------|
 | [Ubuntu 环境配置](blog/ubuntu-config/index.md) | Ubuntu 系统开发环境配置记录 | ✅ 完成 |
 | [Jetson 环境配置](blog/jetson-config/index.md) | NVIDIA Jetson 开发板环境配置记录 | ✅ 完成 |
+| [华为开发板常用命令备忘](blog/huawei-board-commands/index.md) | 华为 Atlas/Ascend 开发板常用命令速查 | ✅ 完成 |
 | [Termux 环境配置](blog/termux-config/index.md) | Android Termux 终端环境配置记录 | ✅ 完成 |
 | [Python 环境配置](blog/python-env/index.md) | Python 环境管理工具介绍与配置 | ✅ 完成 |
+| [PowerShell 7 迁移备忘](blog/pwsh7-migration/index.md) | Windows PowerShell 迁移到 PowerShell 7 记录 | ✅ 完成 |
+| [包管理器常用命令备忘](blog/package-managers/index.md) | npm/pip/apt/winget 等常用包管理器命令速查 | ✅ 完成 |
 
 ### VSCode 相关
 
@@ -26,6 +29,7 @@
 |------|------|------|
 | [Claude Code 配置](blog/claude-code/index.md) | Anthropic 推出的本地运行 Agent 框架 | ✅ 完成 |
 | [iFlow CLI 配置](blog/iflow/index.md) | 阿里推出的终端 Agent 框架 | ✅ 完成 |
+| [Codex CLI 配置](blog/codex-cli-config/index.md) | OpenAI Codex CLI 配置第三方 API 端点 | ✅ 完成 |
 
 ### 终端工具
 
@@ -33,8 +37,10 @@
 |------|------|------|
 | [Git 命令备忘](blog/git-commands/index.md) | Git 常用命令速查 | ✅ 完成 |
 | [Linux 常用命令备忘](blog/linux-commands/index.md) | Linux 日常开发常用命令速查 | ✅ 完成 |
+| [Docker 常用命令备忘](blog/docker-commands/index.md) | Docker 日常使用常用命令速查 | ✅ 完成 |
 | [SSH 命令备忘](blog/ssh-guide/index.md) | SSH 密钥管理、配置文件、端口转发等 | ✅ 完成 |
 | [Vim 常用命令备忘](blog/vim-commands/index.md) | Vim 日常开发常用命令速查 | ✅ 完成 |
+| [Wireshark 使用备忘](blog/wireshark-guide/index.md) | Wireshark 网络抓包工具常用操作记录 | ✅ 完成 |
 | [FZF 使用备忘](blog/fzf/index.md) | 命令行模糊搜索工具，提升终端效率 | ✅ 完成 |
 | [Zoxide 使用备忘](blog/zoxide/index.md) | 更智能的 cd 命令，自动记忆常用目录 | ✅ 完成 |
 | [Zsh 配置](blog/zsh/index.md) | Zsh 终端配置与优化 | ✅ 完成 |

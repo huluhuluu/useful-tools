@@ -23,8 +23,11 @@ math: true
 |------|------|------|
 | [Ubuntu 环境配置](/p/ubuntu-config/) | Ubuntu 系统开发环境配置记录 | ✅ 完成 |
 | [Jetson 环境配置](/p/jetson-config/) | NVIDIA Jetson 开发板环境配置记录 | ✅ 完成 |
+| [华为开发板常用命令备忘](/p/huawei-board-commands/) | 华为 Atlas/Ascend 开发板常用命令速查 | ✅ 完成 |
 | [Termux 环境配置](/p/termux-config/) | Android Termux 终端环境配置记录 | ✅ 完成 |
 | [Python 环境配置](/p/python-env/) | Python 环境管理工具介绍与配置 | ✅ 完成 |
+| [PowerShell 7 迁移备忘](/p/pwsh7-migration/) | Windows PowerShell 迁移到 PowerShell 7 记录 | ✅ 完成 |
+| [包管理器常用命令备忘](/p/package-managers/) | npm/pip/apt/winget 等常用包管理器命令速查 | ✅ 完成 |
 
 ### VSCode 相关
 
@@ -39,6 +42,7 @@ math: true
 |------|------|------|
 | [Claude Code 配置](/p/claude-code/) | Anthropic 推出的本地运行 Agent 框架 | ✅ 完成 |
 | [iFlow CLI 配置](/p/iflow-cli/) | 阿里推出的终端 Agent 框架 | ✅ 完成 |
+| [Codex CLI 配置](/p/codex-cli-config/) | OpenAI Codex CLI 配置第三方 API 端点 | ✅ 完成 |
 
 ### 终端工具
 
@@ -46,8 +50,10 @@ math: true
 |------|------|------|
 | [Git 命令备忘](/p/git-commands/) | Git 常用命令速查 | ✅ 完成 |
 | [Linux 常用命令备忘](/p/linux-commands/) | Linux 日常开发常用命令速查 | ✅ 完成 |
+| [Docker 常用命令备忘](/p/docker-commands/) | Docker 日常使用常用命令速查 | ✅ 完成 |
 | [SSH 命令备忘](/p/ssh-guide/) | SSH 密钥管理、配置文件、端口转发等 | ✅ 完成 |
 | [Vim 常用命令备忘](/p/vim-commands/) | Vim 日常开发常用命令速查 | ✅ 完成 |
+| [Wireshark 使用备忘](/p/wireshark-guide/) | Wireshark 网络抓包工具常用操作记录 | ✅ 完成 |
 | [FZF 使用备忘](/p/fzf/) | 命令行模糊搜索工具，提升终端效率 | ✅ 完成 |
 | [Zoxide 使用备忘](/p/zoxide/) | 更智能的 cd 命令，自动记忆常用目录 | ✅ 完成 |
 | [Zsh 配置](/p/zsh-config/) | Zsh 终端配置与优化 | ✅ 完成 |

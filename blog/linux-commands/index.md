@@ -208,6 +208,9 @@ who                    # 查看登录用户
 w                      # 查看登录用户及其活动
 last                   # 查看登录历史
 
+id username            # 查看指定用户信息
+groups username        # 查看用户所属组
+cat /etc/group         # 查看所有组信息
 adduser username       # 添加用户
 userdel username       # 删除用户
 usermod -aG sudo user  # 将用户加入 sudo 组

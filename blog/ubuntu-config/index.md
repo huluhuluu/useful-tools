@@ -52,7 +52,7 @@ wget https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestReleas
 bash Miniforge3-Linux-x86_64.sh
 rm -rf Miniforge3-Linux-x86_64.sh
 # 设置环境变量
-echo 'source ~/miniforge3/etc/profile.d/conda.sh'  |  tee -a ~/.zshrc # 这里的路径注意要匹配
+echo 'source ~/miniforge3/etc/profile.d/conda.sh'  >> ~/.zshrc # 这里的路径注意要匹配
 
 # 可执行权限
 chmod u+x ~/miniforge3/etc/profile.d/conda.sh

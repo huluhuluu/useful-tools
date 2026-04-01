@@ -39,6 +39,7 @@
 | [Linux 常用命令备忘](blog/linux-commands/index.md) | Linux 日常开发常用命令速查 | ✅ 完成 |
 | [Docker 常用命令备忘](blog/docker-commands/index.md) | Docker 日常使用常用命令速查 | ✅ 完成 |
 | [SSH 命令备忘](blog/ssh-guide/index.md) | SSH 密钥管理、配置文件、端口转发等 | ✅ 完成 |
+| [ADB 使用备忘](blog/adb-guide/index.md) | Android Debug Bridge 常用命令和使用技巧 | ✅ 完成 |
 | [Vim 常用命令备忘](blog/vim-commands/index.md) | Vim 日常开发常用命令速查 | ✅ 完成 |
 | [Wireshark 使用备忘](blog/wireshark-guide/index.md) | Wireshark 网络抓包工具常用操作记录 | ✅ 完成 |
 | [FZF 使用备忘](blog/fzf/index.md) | 命令行模糊搜索工具，提升终端效率 | ✅ 完成 |

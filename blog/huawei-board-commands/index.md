@@ -21,6 +21,7 @@ math: true
 创建新用户并且复制ssh公钥，同时添加到HwHiAiUser分组中
 ```bash
 sudo adduser huluhuluu
+# sudo useradd -m huluhuluu
 sudo usermod -aG HwHiAiUser,docker huluhuluu
 sudo usermod -aG root,wheel huluhuluu # 添加sudo权限 慎重
 passwd huluhuluu # 设置密码

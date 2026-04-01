@@ -52,6 +52,7 @@ math: true
 | [Linux 常用命令备忘](/p/linux-commands/) | Linux 日常开发常用命令速查 | ✅ 完成 |
 | [Docker 常用命令备忘](/p/docker-commands/) | Docker 日常使用常用命令速查 | ✅ 完成 |
 | [SSH 命令备忘](/p/ssh-guide/) | SSH 密钥管理、配置文件、端口转发等 | ✅ 完成 |
+| [ADB 使用备忘](/p/adb-guide/) | Android Debug Bridge 常用命令和使用技巧 | ✅ 完成 |
 | [Vim 常用命令备忘](/p/vim-commands/) | Vim 日常开发常用命令速查 | ✅ 完成 |
 | [Wireshark 使用备忘](/p/wireshark-guide/) | Wireshark 网络抓包工具常用操作记录 | ✅ 完成 |
 | [FZF 使用备忘](/p/fzf/) | 命令行模糊搜索工具，提升终端效率 | ✅ 完成 |

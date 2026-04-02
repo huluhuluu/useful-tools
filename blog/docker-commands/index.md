@@ -5,8 +5,9 @@ lastmod: 2026-03-29T13:00:00+08:00
 draft: false
 description: "Docker 日常使用常用命令速查"
 slug: "docker-commands"
-tags: ["Docker", "容器"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -254,7 +255,6 @@ docker compose restart nginx
 docker compose exec nginx /bin/bash
 ```
 
-
 ## 6. 系统清理
 
 ```bash
@@ -282,7 +282,7 @@ docker network prune         # 清理未使用的网络
 ```json
 {
   "registry-mirrors": [
-    "https://docker.mirrors.ustc.edu.cn",
+    "https://docker.mirrors.ustc.edu.cn", 
     "https://hub-mirror.c.163.com"
   ]
 }
@@ -312,10 +312,9 @@ sudo systemctl restart docker
 
 # 使用 GPU 运行容器
 docker run --gpus all nvidia/cuda:11.8-base nvidia-smi
-docker run --gpus '"device=0,1"' nvidia/cuda:11.8-base nvidia-smi  # 指定 GPU
+docker run --gpus '"device=0, 1"' nvidia/cuda:11.8-base nvidia-smi  # 指定 GPU
 docker run --gpus 2 nvidia/cuda:11.8-base nvidia-smi               # 指定数量
 ```
-
 
 ---
 
@@ -324,3 +323,4 @@ docker run --gpus 2 nvidia/cuda:11.8-base nvidia-smi               # 指定数�
 - [Docker 官方文档](https://docs.docker.com/)
 - [Docker Hub](https://hub.docker.com/)
 - [Docker Compose 文档](https://docs.docker.com/compose/)
+

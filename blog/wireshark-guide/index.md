@@ -5,8 +5,9 @@ lastmod: 2026-03-30T10:00:00+08:00
 draft: false
 description: "Wireshark 网络抓包工具常用操作记录"
 slug: "wireshark-guide"
-tags: ["Wireshark", "网络", "抓包"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -225,7 +226,7 @@ ip.addr == 目标IP && tcp.flags.syn == 1 || tcp.flags.ack == 1
 
 # 顺序
 # 1. SYN (Client -> Server)
-# 2. SYN, ACK (Server -> Client)
+# 2. SYN,  ACK (Server -> Client)
 # 3. ACK (Client -> Server)
 ```
 
@@ -291,8 +292,8 @@ tshark -r capture.pcap -Y "http" # 过滤 HTTP
 tshark -r capture.pcap -T fields -e ip.src -e ip.dst -e frame.protocols
 
 # 统计
-tshark -r capture.pcap -q -z conv,tcp    # TCP 会话统计
-tshark -r capture.pcap -q -z io,phs       # 协议层级统计
+tshark -r capture.pcap -q -z conv, tcp    # TCP 会话统计
+tshark -r capture.pcap -q -z io, phs       # 协议层级统计
 
 # 写入文件
 tshark -i eth0 -w output.pcap -c 1000  # 抓 1000 个包
@@ -318,3 +319,4 @@ tshark -r capture.pcap -T fields -e ip.src | sort | uniq -c | sort -nr | head -1
 - [Wireshark 官网](https://www.wireshark.org/)
 - [Wireshark 文档](https://www.wireshark.org/docs/)
 - [显示过滤器参考](https://www.wireshark.org/docs/dfref/)
+

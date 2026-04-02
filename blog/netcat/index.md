@@ -5,8 +5,9 @@ lastmod: 2026-03-26T17:00:00+08:00
 draft: false
 description: "Netcat 网络工具在局域网文件传输中的应用"
 slug: "netcat"
-tags: ["Netcat", "Gzip", "文件传输"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -36,16 +37,16 @@ sudo apt install -y netcat
 
 ## 2. 文件传输
 ### 2.1 发送单个文件
-可以结合 `pv` (Pipe Viewer) 显示传输进度, 安装 `pv`命令如下
+可以结合 `pv` (Pipe Viewer) 显示传输进度,  安装 `pv`命令如下
 ```bash
 sudo apt install -y pv
 ```
 
-- 接收端需要打开端口，并且把接受到的内容保存到文件中, 下面`<port>`表示端口，file表示保存的文件名
+- 接收端需要打开端口，并且把接受到的内容保存到文件中,  下面`<port>`表示端口，file表示保存的文件名
     ```bash
     nc -l -p <port> | pv > file
     ```
-- 发送端需要向指定的ip和端口发送文件, 下面ip和端口表示**接收端**ip和端口，需要**先启动接收端命令**， file表示发送的文件
+- 发送端需要向指定的ip和端口发送文件,  下面ip和端口表示**接收端**ip和端口，需要**先启动接收端命令**， file表示发送的文件
     ```bash
     pv file | nc <ip> <port>
     ```
@@ -98,3 +99,4 @@ nc -zv target_ip 80 443 8080
 - [Netcat Wikipedia](https://en.wikipedia.org/wiki/Netcat)
 - [Nmap Ncat](https://nmap.org/ncat/)
 - [socat 文档](http://www.dest-unreach.org/socat/)
+

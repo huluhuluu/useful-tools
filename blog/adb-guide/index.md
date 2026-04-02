@@ -5,8 +5,9 @@ lastmod: 2026-04-01T10:00:00+08:00
 draft: false
 description: "Android Debug Bridge 常用命令和使用技巧"
 slug: "adb-guide"
-tags: ["ADB", "Android"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -63,7 +64,7 @@ adb devices
 # abc123    device
 ```
 **DEBUG:`no permissions (user huluhulu is not in the plugdev group);`** ，[参考](https://blog.csdn.net/MrMyGod/article/details/140270806)
-1. 确保自己添加在组`plugdev`中, 第一次添加需要重新登录用户才能生效。
+1. 确保自己添加在组`plugdev`中,  第一次添加需要重新登录用户才能生效。
 ```bash
 sudo usermod -aG plugdev $USER
 ```
@@ -71,11 +72,11 @@ sudo usermod -aG plugdev $USER
 ```bash
 huluhulu@march-dlng:~$ lsusb
 Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 001 Device 002: ID 048d:5702 Integrated Technology Express, Inc. RGB LED Controller
-Bus 001 Device 003: ID 05e3:0608 Genesys Logic, Inc. Hub
-Bus 001 Device 004: ID 05e3:0608 Genesys Logic, Inc. Hub
-Bus 001 Device 005: ID 046d:c31c Logitech, Inc. Keyboard K120
-Bus 001 Device 006: ID 046d:c53f Logitech, Inc. USB Receiver
+Bus 001 Device 002: ID 048d:5702 Integrated Technology Express,  Inc. RGB LED Controller
+Bus 001 Device 003: ID 05e3:0608 Genesys Logic,  Inc. Hub
+Bus 001 Device 004: ID 05e3:0608 Genesys Logic,  Inc. Hub
+Bus 001 Device 005: ID 046d:c31c Logitech,  Inc. Keyboard K120
+Bus 001 Device 006: ID 046d:c53f Logitech,  Inc. USB Receiver
 Bus 001 Device 011: ID 22d9:2765 OPPO Electronics Corp. Oppo N1 # ----> 这里是连接的手机 记住ID后面的数字
 Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
 
@@ -84,7 +85,7 @@ Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
 # 接下来添加`udev`规则
 sudo vim /etc/udev/rules.d/51-android.rules
 # 把下面内容添加到文件中，保存退出
-# SUBSYSTEM=="usb", ATTR{idVendor}=="22d9", ATTR{idProduct}=="2765", MODE="0666" # 这里0666表示所有用户可读写设备
+# SUBSYSTEM=="usb",  ATTR{idVendor}=="22d9",  ATTR{idProduct}=="2765",  MODE="0666" # 这里0666表示所有用户可读写设备
 
 # 修改权限并重启udev
 sudo chmod a+rx /etc/udev/rules.d/51-android.rules
@@ -93,7 +94,6 @@ sudo service udev restart
 sudo adb kill-server
 sudo adb start-server
 ```
-
 
 ### 2.2 无线连接
 
@@ -579,3 +579,4 @@ adb start-server
 - [ADB 官方文档](https://developer.android.com/studio/command-line/adb)
 - [ADB Shell 命令](https://developer.android.com/studio/command-line/shell)
 - [Platform Tools 下载](https://developer.android.com/studio/releases/platform-tools)
+

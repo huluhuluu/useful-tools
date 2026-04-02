@@ -5,8 +5,9 @@ lastmod: 2026-03-26T17:00:00+08:00
 draft: false
 description: "Python 环境管理工具介绍与配置"
 slug: "python-env"
-tags: ["Python", "conda", "uv"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -28,7 +29,6 @@ wget https://mirrors.zju.edu.cn/miniforge/Miniforge3-Linux-x86_64.sh
 # 安装并且删除
 ./Miniforge3-Linux-x86_64.sh
 rm -rf Miniforge3-Linux-x86_64.sh
-
 
 # 重新打开终端初始化
 conda init bash
@@ -126,3 +126,4 @@ uv pip install torch torchvision
 - [uv GitHub](https://github.com/astral-sh/uv)
 - [uv 官方文档](https://docs.astral.sh/uv/)
 - [Miniforge](https://conda-forge.org/miniforge/)
+

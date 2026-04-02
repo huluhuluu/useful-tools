@@ -5,8 +5,9 @@ lastmod: 2026-02-26T18:00:00+08:00
 draft: false
 description: "阿里推出的终端 Agent 框架配置记录"
 slug: "iflow-cli"
-tags: ["iFlow", "Agent", "大模型"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -60,3 +61,4 @@ iflow
 | `/clear` | 清除之前的对话上下文，重新开始 |
 | `/compress` | 压缩之前的对话上下文，保留关键信息，释放上下文空间 |
 | `/init` | 初始化一个新的对话，会在目录下生成 AGENTS.md 文件，记录初始化信息 |
+

@@ -5,8 +5,9 @@ lastmod: 2026-02-26T18:00:00+08:00
 draft: false
 description: "Anthropic 推出的本地运行 Agent 框架配置记录"
 slug: "claude-code"
-tags: ["Claude Code", "Agent", "大模型"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -19,7 +20,7 @@ math: true
 
 ## 1. 安装 Claude Code
 
-下载安装 `claude code` (需要魔法，[参考安装教程](https://www.runoob.com/ai-agent/claude-code.html))，并且为了使用第三方 API 需要禁用登录。
+下载安装 `claude code` (需要魔法，[参考安装tutorial](https://www.runoob.com/ai-agent/claude-code.html))，并且为了使用第三方 API 需要禁用登录。
 
 ```bash
 curl -fsSL https://claude.ai/install.sh | bash
@@ -76,7 +77,7 @@ Configure Claude Provider:
 > Haiku Model:： deepseek-chat
 > Sonnet Model:： deepseek-chat
 > Opus Model:： deepseek-chat
-> Configure optional fields (notes, sort index)? Yes
+> Configure optional fields (notes,  sort index)? Yes
 
 Optional Fields Configuration:
 > Notes: 
@@ -124,7 +125,7 @@ Confirm create this provider? (y/N) y
 
 ### 3.1 Skill 结构
 
-Skill 包含如下结构，可以理解为高级提示词。参考教程: [官方文档](https://support.claude.com/en/articles/12512180-using-skills-in-claude-code)、[中文教程](https://www.runoob.com/ai-agent/skills-agent.html)
+Skill 包含如下结构，可以理解为高级提示词。参考tutorial: [官方文档](https://support.claude.com/en/articles/12512180-using-skills-in-claude-code)、[中文tutorial](https://www.runoob.com/ai-agent/skills-agent.html)
 
 ```
 skill-name/
@@ -164,3 +165,4 @@ lrwxrwxrwx 1 root root   32 Feb  3 19:34 write-docs -> ../../.agents/skills/writ
 第一次使用会询问工具权限，如果不应该使用工具可以附上应该怎么做，例如 `Fetch(https://github.com/alibaba/MNN)` 这一步被取消了，理由是当前目录就在 MNN 中。
 
 ![工具权限](png/tool-permission.png)
+

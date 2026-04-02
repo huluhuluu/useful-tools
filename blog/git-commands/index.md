@@ -5,8 +5,9 @@ lastmod: 2026-03-27T23:00:00+08:00
 draft: false
 description: "Git 常用命令速查"
 slug: "git-commands"
-tags: ["Git"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -185,3 +186,4 @@ git add -p             # 交互式选择部分修改暂存
 
 - [Git 官方文档](https://git-scm.com/doc)
 - [Pro Git 电子书](https://git-scm.com/book/zh/v2)
+

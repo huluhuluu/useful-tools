@@ -5,8 +5,9 @@ lastmod: 2026-03-28T00:00:00+08:00
 draft: false
 description: "SSH 密钥管理、配置文件、端口转发等常用功能"
 slug: "ssh-guide"
-tags: ["SSH"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -55,7 +56,7 @@ Host alias-name # 别名
     HostName server.example.com # ip地址或域名
     User username # 登录用户名
     Port 22 # 端口号，默认22
-    IdentityFile ~/.ssh/mykey # 私钥路径, 默认是~/.ssh/id_rsa或id_ed25519
+    IdentityFile ~/.ssh/mykey # 私钥路径,  默认是~/.ssh/id_rsa或id_ed25519
 ```
 
 配置别名后可以直接使用别名连接：
@@ -140,7 +141,6 @@ export all_proxy="socks5://127.0.0.1:1080"
 | 远程转发 | `-R` | 将本地服务端口暴露给远程 |
 | 动态转发 | `-D` | 创建代理，流量全部走服务器 |
 
-
 ---
 
 ## 3. 参考链接
@@ -148,3 +148,4 @@ export all_proxy="socks5://127.0.0.1:1080"
 - [SSH 官方文档](https://www.openbsd.org/openssh/manuals.html)
 - [SSH 配置文件详解](https://linux.die.net/man/5/ssh_config)
 - [SSH 端口转发详解](https://www.ssh.com/academy/ssh/tunneling/example)
+

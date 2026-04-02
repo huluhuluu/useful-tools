@@ -5,8 +5,9 @@ lastmod: 2026-02-26T18:00:00+08:00
 draft: false
 description: "在 VSCode 中快速跳转到屏幕可见的任意一行"
 slug: "flash-vscode"
-tags: ["VSCode", "效率工具"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -39,7 +40,7 @@ math: true
 
 ```json
 {
-    "key": "ctrl+;",
+    "key": "ctrl+;", 
     "command": "flash-vscode.start" // 可能更换
 }
 ```
@@ -47,3 +48,4 @@ math: true
 ## 4. 取消搜索
 
 取消这次搜索按 ESC 键
+

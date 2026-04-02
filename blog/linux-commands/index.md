@@ -5,8 +5,9 @@ lastmod: 2026-03-27T23:30:00+08:00
 draft: false
 description: "Linux 日常开发常用命令速查"
 slug: "linux-commands"
-tags: ["Linux"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -117,7 +118,7 @@ tar -xzvf archive.tar.gz                # 解压 .tar.gz
 tar -xjvf archive.tar.bz2               # 解压 .tar.bz2
 tar -xzvf archive.tar.gz -C /target/dir # 解压到指定目录
 
-# 参数说明: c-创建, x-解压, z-gzip, j-bzip2, v-显示过程, f-指定文件
+# 参数说明: c-创建,  x-解压,  z-gzip,  j-bzip2,  v-显示过程,  f-指定文件
 ```
 
 ## 4. 网络工具
@@ -227,7 +228,7 @@ chmod -R 755 dir/      # 递归修改目录权限
 chown user:group file  # 修改所有者
 chown -R user:group dir/  # 递归修改
 
-# 权限数字: 7=rwx, 6=rw-, 5=r-x, 4=r--, 0=---
+# 权限数字: 7=rwx,  6=rw-,  5=r-x,  4=r--,  0=---
 ```
 
 ## 7. 文本处理
@@ -271,3 +272,4 @@ source ~/.bashrc             # 使配置生效 或者是 ~/.zshrc
 - [Linux 命令大全](https://www.runoob.com/linux/linux-command-manual.html)
 - [Linux Command](https://linux.die.net/)
 - [TLDR Pages](https://tldr.sh/) - 简化版 man 手册
+

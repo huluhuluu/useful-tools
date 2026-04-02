@@ -5,8 +5,9 @@ lastmod: 2026-03-04T12:00:00+08:00
 draft: false
 description: "Zsh 终端配置与优化"
 slug: "zsh-config"
-tags: ["Zsh", "终端", "Shell"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -42,3 +43,4 @@ echo "$changeshell" >> ~/.bash_profile
 
 - [Zsh 官方网站](https://www.zsh.org/)
 - [Oh My Zsh](https://ohmyz.sh/)
+

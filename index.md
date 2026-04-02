@@ -1,17 +1,18 @@
 ---
-title: "实用工具"
+title: tools
 date: 2026-01-30T08:00:00+08:00
 lastmod: 2026-03-27T23:00:00+08:00
 draft: false
 description: "开发过程中用到的一些实用小工具配置记录"
 slug: "useful-tools"
-tags: ["VSCode", "Copilot", "Claude Code", "iFlow", "终端工具", "环境配置"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
 
-# 实用工具
+# tools
 
 开发过程中用到的一些实用小工具配置记录。
 
@@ -69,3 +70,4 @@ math: true
 | [HuggingFace/ModelScope 下载器](/p/model-downloader/) | HuggingFace 和 ModelScope 模型下载工具介绍 | ✅ 完成 |
 
 ---
+

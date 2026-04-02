@@ -5,8 +5,9 @@ lastmod: 2026-02-26T18:00:00+08:00
 draft: false
 description: "配置 Copilot Chat 使用本地局域网大模型推理 API 接口"
 slug: "copilot-config"
-tags: ["VSCode", "Copilot", "大模型"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -27,10 +28,10 @@ math: true
 "remote.extensionKind": {
 	"johnny-zhao.oai-compatible-copilot" : [ // 给copilot-chat配置自定义api接口的插件
 		"ui"
-	],
+	], 
 	"github.copilot" : [ // copilot
 		"ui"
-	],
+	], 
 	"github.copilot-chat": [ // copilot chat
 		"ui"
 	]
@@ -83,7 +84,7 @@ math: true
 
 ![填写模型信息](png/fill-model.png)
 
-目前插件支持 openai, openai-responses, ollama, anthropic, gemini 等多种格式，具体细节见[插件仓库](https://github.com/JohnnyZ93/oai-compatible-copilot)。
+目前插件支持 openai,  openai-responses,  ollama,  anthropic,  gemini 等多种格式，具体细节见[插件仓库](https://github.com/JohnnyZ93/oai-compatible-copilot)。
 
 每个模型可以定义采样的 temperature、top_p、top_k 等参数，细节同见[仓库](https://github.com/JohnnyZ93/oai-compatible-copilot)。
 
@@ -92,3 +93,4 @@ math: true
 在 Copilot Chat 界面选择对应模型就可以使用对应模型的 Copilot Chat 了
 
 ![选择模型](png/select-model.png)
+

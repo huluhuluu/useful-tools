@@ -5,8 +5,9 @@ lastmod: 2026-03-26T17:00:00+08:00
 draft: false
 description: "Android Termux 终端环境配置记录"
 slug: "termux-config"
-tags: ["Termux", "Android", "移动开发"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -89,3 +90,4 @@ echo "$changeshell" >> ~/.bash_profile
 - [Termux Wiki](https://wiki.termux.com/)
 - [Termux GitHub](https://github.com/termux)
 - [清华大学 Termux 镜像](https://mirrors.tuna.tsinghua.edu.cn/help/termux/)
+

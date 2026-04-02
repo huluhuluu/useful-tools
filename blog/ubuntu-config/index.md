@@ -5,8 +5,9 @@ lastmod: 2026-03-26T17:00:00+08:00
 draft: false
 description: "Ubuntu 系统开发环境配置记录"
 slug: "ubuntu-config"
-tags: ["Ubuntu", "Linux", "环境配置"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -65,3 +66,4 @@ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda/
 source ~/.zshrc
 ```
+

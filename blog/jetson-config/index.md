@@ -5,8 +5,9 @@ lastmod: 2026-03-26T17:00:00+08:00
 draft: false
 description: "NVIDIA Jetson 开发板环境配置记录"
 slug: "jetson-config"
-tags: ["Jetson", "NVIDIA", "边缘计算"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -79,7 +80,7 @@ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
 ```
 
 ### 2.2 pytorch安装
-需要特定版本的pytorch，参考[版本兼容表](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048)和[官方安装教程](https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html#)
+需要特定版本的pytorch，参考[版本兼容表](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048)和[官方安装tutorial](https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html#)
 
 - 先查看jetpack版本和cuda版本
 ```bash
@@ -90,7 +91,7 @@ Version: 6.0+b106
 Architecture: arm64
 Maintainer: NVIDIA Corporation
 Installed-Size: 194
-Depends: nvidia-jetpack-runtime (= 6.0+b106), nvidia-jetpack-dev (= 6.0+b106)
+Depends: nvidia-jetpack-runtime (= 6.0+b106),  nvidia-jetpack-dev (= 6.0+b106)
 Homepage: http://developer.nvidia.com/jetson
 Priority: standard
 Section: metapackages
@@ -108,7 +109,7 @@ Version: 6.0+b87
 Architecture: arm64
 Maintainer: NVIDIA Corporation
 Installed-Size: 194
-Depends: nvidia-jetpack-runtime (= 6.0+b87), nvidia-jetpack-dev (= 6.0+b87)
+Depends: nvidia-jetpack-runtime (= 6.0+b87),  nvidia-jetpack-dev (= 6.0+b87)
 Homepage: http://developer.nvidia.com/jetson
 Priority: standard
 Section: metapackages
@@ -126,11 +127,11 @@ N: Ignoring file 'cuda-tegra-ubuntu2204-12-2-local.list.backup' in directory '/e
 nvcc: NVIDIA (R) Cuda compiler driver
 Copyright (c) 2005-2023 NVIDIA Corporation
 Built on Tue_Aug_15_22:08:11_PDT_2023
-Cuda compilation tools, release 12.2, V12.2.140
+Cuda compilation tools,  release 12.2,  V12.2.140
 Build cuda_12.2.r12.2/compiler.33191640_0 # cuda 版本
 ```
 
-- 根据`jetpack`版本和`cuda`版本查找对应的`pytorch`版本与下载链接,以`nvidia-jetpack (6.0)和cuda12.2`为例，在[版本兼容表](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048)中找到对应的`pytorch`版本, 右键复制下载链接
+- 根据`jetpack`版本和`cuda`版本查找对应的`pytorch`版本与下载链接, 以`nvidia-jetpack (6.0)和cuda12.2`为例，在[版本兼容表](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048)中找到对应的`pytorch`版本,  右键复制下载链接
     ![PyTorch 版本兼容表](./png/pytorch-version-table.png)
 
 - 指定`pyhton`版本创建虚拟环境，安装对应`pytorch`
@@ -172,7 +173,7 @@ sudo jetson_clocks # 启用最高性能
 sudo jetson_clocks --restore # 恢复默认频率
 sudo jetson_clocks --show # 查看当前状态
 ```
-可以在jtop中查看当前模式和频率,启动 jtop 后按 → 切换到 CTRL 页面可以看到左下角的`NV Power Mode`， 同时可以看到`jetpack`版本，在`7INFO`界面可以看到`cuda`版本等信息
+可以在jtop中查看当前模式和频率, 启动 jtop 后按 → 切换到 CTRL 页面可以看到左下角的`NV Power Mode`， 同时可以看到`jetpack`版本，在`7INFO`界面可以看到`cuda`版本等信息
 ![jtop 信息界面](./png/jtop-info.png)
 
 ---
@@ -182,3 +183,4 @@ sudo jetson_clocks --show # 查看当前状态
 - [NVIDIA JetPack](https://developer.nvidia.com/embedded/jetpack)
 - [Jetson 开发者论坛](https://forums.developer.nvidia.com/)
 - [jetson-stats](https://github.com/rbonghi/jetson_stats)
+

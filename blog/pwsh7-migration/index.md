@@ -5,8 +5,9 @@ lastmod: 2026-03-29T10:00:00+08:00
 draft: false
 description: "Windows PowerShell 迁移到 PowerShell 7 记录"
 slug: "pwsh7-migration"
-tags: ["PowerShell", "Windows"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -56,15 +57,15 @@ $PROFILE | Format-List -Force
 
 ### 1.3 VSCode
 
-在 `VSCode` 中通过`Ctrl+Shift+P`打开命令面板,搜索并进入`Preferences: Open User Settings (JSON)`，在 `settings.json` 中查找配置，
-需要为`terminal.integrated.profiles.windows`添加`PowerShell 7`的路径配置，通常情况路径是` "C:\\Program Files\\PowerShell\\7\\pwsh.exe"`, 可以用`where.exe pwsh`命令查找：
+在 `VSCode` 中通过`Ctrl+Shift+P`打开命令面板, 搜索并进入`Preferences: Open User Settings (JSON)`，在 `settings.json` 中查找配置，
+需要为`terminal.integrated.profiles.windows`添加`PowerShell 7`的路径配置，通常情况路径是` "C:\\Program Files\\PowerShell\\7\\pwsh.exe"`,  可以用`where.exe pwsh`命令查找：
 另外把默认终端设置为`PowerShell 7`，保存后即可。
 
 ```json
     "terminal.integrated.profiles.windows": {
         "PowerShell 7": {   // 配置 PowerShell 7 终端路径
-            "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-        }, 
+            "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe", 
+        },  
     }
     "terminal.integrated.defaultProfile.windows": "PowerShell 7" // 设置默认终端
 ```
@@ -75,19 +76,19 @@ $PROFILE | Format-List -Force
 
 ```powershell
 # 查看文件/目录
-Get-ChildItem          # 别名: ls, dir
+Get-ChildItem          # 别名: ls,  dir
 Get-ChildItem -Force   # 显示隐藏文件
 Get-ChildItem -Recurse # 递归查看
 
 # 查看文件内容
-Get-Content file.txt   # 别名: cat, type
+Get-Content file.txt   # 别名: cat,  type
 Get-Content file.txt -Head 10  # 前 10 行
 Get-Content file.txt -Tail 10  # 后 10 行
 
 # 复制/移动/删除
-Copy-Item src dst      # 别名: cp, copy
-Move-Item src dst      # 别名: mv, move
-Remove-Item path       # 别名: rm, del
+Copy-Item src dst      # 别名: cp,  copy
+Move-Item src dst      # 别名: mv,  move
+Remove-Item path       # 别名: rm,  del
 Remove-Item -Recurse -Force dir  # 强制删除目录
 
 # 创建
@@ -160,11 +161,11 @@ Get-Volume
 # 环境变量
 $env:PATH
 $env:JAVA_HOME
-[Environment]::GetEnvironmentVariable("PATH", "User")
+[Environment]::GetEnvironmentVariable("PATH",  "User")
 
 # 设置环境变量
 $env:MY_VAR = "value"
-[Environment]::SetEnvironmentVariable("MY_VAR", "value", "User")
+[Environment]::SetEnvironmentVariable("MY_VAR",  "value",  "User")
 ```
 
 ### 2.6 压缩解压
@@ -192,7 +193,7 @@ Get-Clipboard             # 别名: gcb
 
 # 执行命令并获取输出
 Invoke-Expression "echo hello"
-Invoke-WebRequest "https://example.com"  # 别名: curl, wget
+Invoke-WebRequest "https://example.com"  # 别名: curl,  wget
 ```
 
 ---
@@ -203,3 +204,4 @@ Invoke-WebRequest "https://example.com"  # 别名: curl, wget
 - [PowerShell 文档](https://learn.microsoft.com/powershell/)
 - [PowerShell 7 新特性](https://learn.microsoft.com/powershell/scripting/whats-new/what-s-new-in-powershell-7)
 - [从 Windows PowerShell 迁移](https://learn.microsoft.com/powershell/scripting/whats-new/migrating-from-windows-powershell-51-to-powershell-7)
+

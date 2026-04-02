@@ -5,15 +5,16 @@ lastmod: 2026-03-28T12:30:00+08:00
 draft: false
 description: "命令行模糊搜索工具，提升终端效率"
 slug: "fzf"
-tags: ["FZF", "终端"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
 
 # FZF 使用备忘
 
-[FZF](https://github.com/junegunn/fzf) 是一个通用的命令行模糊搜索工具，可以与多种工具配合使用，例如CRTL+R搜索历史命令、快速打开文件等。用 Go 编写，速度非常快，[教程与效果演示参考](https://yalandhong.github.io/2022/11/03/shell/zsh-fzf)。
+[FZF](https://github.com/junegunn/fzf) 是一个通用的命令行模糊搜索工具，可以与多种工具配合使用，例如CRTL+R搜索历史命令、快速打开文件等。用 Go 编写，速度非常快，[tutorial与效果演示参考](https://yalandhong.github.io/2022/11/03/shell/zsh-fzf)。
 
 ## 1. 安装
 
@@ -59,10 +60,8 @@ vim $(fzf)
 在`shell`中，输入`**`再按tab可以进入`fzf`的模糊搜索模式，输入关键字后按回车即可跳转到对应目录。
 ![模糊搜索模式](./png/fuzzy-search.png)
 
-
 ### 2.4 子目录直达
 `Alt+C` 可以进入`fzf`的子目录搜索模式，输入关键字后按回车即可跳转到对应目录。
-
 
 ## 3. 高级用法
 
@@ -88,7 +87,6 @@ abc|def      # 包含 abc 或 def
 fzf --multi
 ```
 
-
 ---
 
 ## 参考链接
@@ -96,3 +94,4 @@ fzf --multi
 - [FZF GitHub](https://github.com/junegunn/fzf)
 - [FZF Wiki](https://github.com/junegunn/fzf/wiki)
 - [FZF效果](https://yalandhong.github.io/2022/11/03/shell/zsh-fzf)
+

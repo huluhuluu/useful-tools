@@ -5,8 +5,9 @@ lastmod: 2026-03-29T12:00:00+08:00
 draft: false
 description: "npm/pip/apt/winget 等常用包管理器命令速查"
 slug: "package-managers"
-tags: ["npm", "pip", "apt", "包管理"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -89,7 +90,6 @@ yarn info package
 yarn script-name
 yarn run script-name
 ```
-
 
 ### 1.3 apt (Debian/Ubuntu)
 
@@ -182,3 +182,4 @@ scoop cache rm *
 ```
 
 ---
+

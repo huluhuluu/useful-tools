@@ -5,8 +5,9 @@ lastmod: 2026-03-29T13:00:00+08:00
 draft: true
 description: "华为 Atlas/Ascend 开发板常用命令速查"
 slug: "huawei-board-commands"
-tags: ["华为", "Atlas", "Ascend", "NPU"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -22,8 +23,8 @@ math: true
 ```bash
 sudo adduser huluhuluu
 # sudo useradd -m huluhuluu
-sudo usermod -aG HwHiAiUser,docker huluhuluu
-sudo usermod -aG root,wheel huluhuluu # 添加sudo权限 慎重
+sudo usermod -aG HwHiAiUser, docker huluhuluu
+sudo usermod -aG root, wheel huluhuluu # 添加sudo权限 慎重
 passwd huluhuluu # 设置密码
 sudo su huluhuluu
 # 设置公钥
@@ -52,7 +53,7 @@ watch -n 1 npu-smi info
 ```
 
 ### 1.3 nputop
-[nputop](https://github.com/youyve/nputop)是一个交互式命令行工具，专门用于监视和管理Ascend NPU上运行的进程, 但是依赖`python`环境
+[nputop](https://github.com/youyve/nputop)是一个交互式命令行工具，专门用于监视和管理Ascend NPU上运行的进程,  但是依赖`python`环境
 
 ```bash
 # 安装uv
@@ -193,3 +194,4 @@ echo $LD_LIBRARY_PATH
 - [CANN 开发文档](https://www.hiascend.com/document)
 - [Atlas 开发者文档](https://support.huawei.com/enterprise/zh/doc/EDOC1100207487)
 - [vllm Ascend 文档](https://docs.vllm.ai/projects/ascend/en/latest/tutorials/models/GLM5.html)
+

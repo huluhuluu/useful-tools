@@ -5,8 +5,9 @@ lastmod: 2026-03-29T11:00:00+08:00
 draft: false
 description: "OpenAI Codex CLI 配置第三方 API 端点记录"
 slug: "codex-cli-config"
-tags: ["Codex CLI", "OpenAI", "AI Agent"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -64,7 +65,7 @@ Configure Codex Provider:
 > OpenAI API Key: sk-abababababababababababababab
 > Base URL: http://example.com/v1
 > Model: gpt-5.3-codex
-> Configure optional fields (notes, sort index)? No
+> Configure optional fields (notes,  sort index)? No
 
 === Provider Configuration Summary ===
 ID: example
@@ -117,10 +118,10 @@ codex "创建一个 Python 脚本读取 JSON 文件"
 codex --full-auto "帮我重构这个函数"
 ```
 
-
 ---
 
 ## 参考链接
 
 - [Codex CLI GitHub](https://github.com/openai/codex)
 - [OpenAI API 文档](https://platform.openai.com/docs)
+

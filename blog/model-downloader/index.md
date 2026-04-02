@@ -5,8 +5,9 @@ lastmod: 2026-03-26T17:00:00+08:00
 draft: false
 description: "HuggingFace 和 ModelScope 模型下载工具介绍"
 slug: "model-downloader"
-tags: ["HuggingFace", "ModelScope", "模型下载"]
-categories: ["实用工具"]
+tags: ["tools"]
+categories: ["tools"]
+
 comments: true
 math: true
 ---
@@ -55,7 +56,7 @@ pip install modelscope # 先在指定虚拟环境下安装modelscope包
 ```
 然后找到想要下载的模型的界面，旁边有下载指引
 ![ModelScope 下载指引入口](./png/ms-download-guide.png)
-在下载指引可以看到下载教程，
+在下载指引可以看到下载tutorial，
 ![ModelScope 模型 ID 位置](./png/ms-model-id.png)
 通常来说，命令行下载只需要找到**模型id**，如上图左侧，随后执行下载命令
 ```bash
@@ -84,3 +85,4 @@ SDK或者git方式参考[官方文档](https://modelscope.cn/docs/models/downloa
 - [HuggingFace Hub 文档](https://huggingface.co/docs/hub/)
 - [ModelScope 文档](https://modelscope.cn/docs)
 - [hf-mirror](https://hf-mirror.com/)
+

@@ -1,4 +1,4 @@
-# 实用工具
+# tools
 
 开发过程中用到的一些实用小工具配置记录。
 
@@ -54,3 +54,4 @@
 | 文章 | 说明 | 状态 |
 |------|------|------|
 | [HuggingFace/ModelScope 下载器](blog/model-downloader/index.md) | HuggingFace 和 ModelScope 模型下载工具介绍 | ✅ 完成 |
+

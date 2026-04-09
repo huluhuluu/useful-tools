@@ -7,6 +7,8 @@ description: "开发过程中用到的一些实用小工具配置记录"
 slug: "useful-tools"
 tags: ["tools"]
 categories: ["tools"]
+build:
+  list: never
 
 comments: true
 math: true

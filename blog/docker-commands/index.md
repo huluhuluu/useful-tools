@@ -282,8 +282,10 @@ docker network prune         # 清理未使用的网络
 ```json
 {
   "registry-mirrors": [
-    "https://docker.mirrors.ustc.edu.cn", 
-    "https://hub-mirror.c.163.com"
+    "https://docker.1panel.live",  // 1Panel 公益源
+    "https://pull.uhub.cn",     // UCloud 镜像
+    "https://dhub.kubesre.xyz", // kubesre 镜像
+    "https://registry.cn-hangzhou.aliyuncs.com" // 阿里云中国区镜像
   ]
 }
 ```

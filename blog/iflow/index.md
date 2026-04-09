@@ -26,13 +26,35 @@ math: true
 
 ## 2. 安装 iFlow
 
-打开 PowerShell 安装 iFlow：
+打开 `PowerShell` 安装 `iFlow`:
 
 ```powershell
+# 访问 https://nodejs.org/zh-cn/download 下载最新的 Node.js 安装程序
 npm install -g @iflow-ai/iflow-cli@latest
 iflow --version # 有输出验证安装成功
 ```
 
+`linux`安装
+```bash
+# 1. 直接安装
+bash -c "$(curl -fsSL https://gitee.com/iflow-ai/iflow-cli/raw/main/install.sh)"
+
+# 2. 通过 npm 安装 依赖nodejs
+npm i -g @iflow-ai/iflow-cli@latest
+iflow --version # 有输出验证安装成功
+
+# 如果nodejs版本过低，可以使用nvm安装最新版本的nodejs
+# 激活nvm
+echo '
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.zshrc
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+nvm --version # 验证nvm
+export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node # 设置镜像源
+nvm install 20 # 安装nodejs 20版本
+```
 ## 3. 登录配置
 
 打开 PowerShell，启动 iFlow 后进入登录界面：

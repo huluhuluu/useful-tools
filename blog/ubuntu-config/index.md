@@ -33,14 +33,18 @@ sed -i '/^plugins=/c\plugins=(git sudo zsh-syntax-highlighting zsh-autosuggestio
 # 自动切换zsh
 touch ~/.bash_profile
 changeshell="exec $(which zsh) -l"
-echo "$changeshell" >> ~/.bash_profile、
+echo "$changeshell" >> ~/.bash_profile
 
-# 部分配置
+# zoxide安装
+curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 echo 'eval "$(zoxide init zsh)"' >> ~/.zshrc
 # fzf安装
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install # 运行安装脚本
 
+# ！！重要， 配置CUDA的环境变量
+echo 'export PATH="/usr/local/cuda/bin:$PATH"' >> ~/.zshrc
+echo 'export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"' >> ~/.zshrc
 source ~/.zshrc # 使配置生效
 ```
 
@@ -50,7 +54,7 @@ source ~/.zshrc # 使配置生效
 wget https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-x86_64.sh
 
 # 安装和删除
-bash Miniforge3-Linux-x86_64.sh
+bash Miniforge3-Linux-x86_64.sh -b
 rm -rf Miniforge3-Linux-x86_64.sh
 # 设置环境变量
 echo 'source ~/miniforge3/etc/profile.d/conda.sh'  >> ~/.zshrc # 这里的路径注意要匹配
@@ -59,11 +63,11 @@ echo 'source ~/miniforge3/etc/profile.d/conda.sh'  >> ~/.zshrc # 这里的路径
 chmod u+x ~/miniforge3/etc/profile.d/conda.sh
 
 # 初始化并且配置清华源
-conda init
+source ~/.zshrc
+conda init zsh
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda/
-source ~/.zshrc
 ```
 

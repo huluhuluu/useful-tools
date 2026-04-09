@@ -49,7 +49,7 @@ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
 
 ```bash
 # 创建环境
-conda create -n myenv python=3.10
+conda create -n myenv python=3.10 -y
 
 # 激活环境
 conda activate myenv
@@ -82,6 +82,10 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # 或通过 pip
 pip install uv
+
+# 换源
+# export UV_INDEX_URL=https://pypi.mirrors.ustc.edu.cn/simple/ # 临时生效
+echo 'index-url = "https://pypi.mirrors.ustc.edu.cn/simple/"' > ~/.config/uv/uv.toml
 ```
 
 ### 2.2 常用命令

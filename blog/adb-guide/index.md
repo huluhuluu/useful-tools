@@ -70,7 +70,7 @@ sudo usermod -aG plugdev $USER
 ```
 2. 添加 `udev` 规则，创建文件 `/etc/udev/rules.d/51-android.rules`，内容如下（根据`lsusb`命令的输出设置）：
 ```bash
-huluhulu@march-dlng:~$ lsusb
+huluhulu@march-dlng:~$ lsusb # 如果修改了手机的连接模式，下面id会随之变化(例如从仅充电修改成文件传输)
 Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
 Bus 001 Device 002: ID 048d:5702 Integrated Technology Express,  Inc. RGB LED Controller
 Bus 001 Device 003: ID 05e3:0608 Genesys Logic,  Inc. Hub

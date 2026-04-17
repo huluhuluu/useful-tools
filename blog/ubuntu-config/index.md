@@ -40,7 +40,7 @@ curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh 
 echo 'eval "$(zoxide init zsh)"' >> ~/.zshrc
 # fzf安装
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install # 运行安装脚本
+~/.fzf/install --all # 运行安装脚本
 
 # ！！重要， 配置CUDA的环境变量
 echo 'export PATH="/usr/local/cuda/bin:$PATH"' >> ~/.zshrc

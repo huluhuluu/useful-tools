@@ -25,6 +25,20 @@ npm install -g @openai/codex
 # 验证安装
 codex --version
 # codex-cli 0.117.0 # 输出版本 安装成功
+
+# linux 环境下
+# 如果索引不到codex命令，可以尝试以下命令
+# 激活nvm
+echo '
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.zshrc
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+nvm --version # 验证nvm
+export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node # 设置镜像源
+# 如果nodejs版本过低，可以使用nvm安装最新版本的nodejs
+nvm install 20 # 安装nodejs 20版本
 ```
 
 ## 2. 配置第三方 API
@@ -63,7 +77,7 @@ Generated ID: example
 
 Configure Codex Provider:
 > OpenAI API Key: sk-abababababababababababababab
-> Base URL: http://example.com/v1
+> Base URL: http://example.com/v1 # 注意这里部分自建站点需要加/v1 同时注意这里的协议
 > Model: gpt-5.3-codex
 > Configure optional fields (notes,  sort index)? No
 
@@ -116,6 +130,15 @@ codex "创建一个 Python 脚本读取 JSON 文件"
 
 # 非交互模式（自动执行）
 codex --full-auto "帮我重构这个函数"
+```
+
+### 2.4 常用命令
+```bash
+/resume
+/ps
+/stop
+/approvals
+/skills
 ```
 
 ---

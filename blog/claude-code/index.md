@@ -51,6 +51,10 @@ tar -xzf cc-switch-cli-*.tar.gz # 解压
 rm cc-switch-cli-*.tar.gz # 删除压缩包
 chmod +x cc-switch # 执行权限
 sudo mv cc-switch /usr/local/bin/ # 放到系统路径
+
+
+# 或者直接安装
+curl -fsSL https://github.com/SaladDay/cc-switch-cli/releases/latest/download/install.sh | bash
 ```
 
 ### 2.2 配置 API

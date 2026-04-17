@@ -9,6 +9,7 @@
 | 文章 | 说明 | 状态 |
 |------|------|------|
 | [Ubuntu 环境配置](blog/ubuntu-config/index.md) | Ubuntu 系统开发环境配置记录 | ✅ 完成 |
+| [Ubuntu 代理配置](blog/ubuntu-proxy/index.md) | Ubuntu 系统代理配置方法汇总 | ✅ 完成 |
 | [Jetson 环境配置](blog/jetson-config/index.md) | NVIDIA Jetson 开发板环境配置记录 | ✅ 完成 |
 | [华为开发板常用命令备忘](blog/huawei-board-commands/index.md) | 华为 Atlas/Ascend 开发板常用命令速查 | ✅ 完成 |
 | [Termux 环境配置](blog/termux-config/index.md) | Android Termux 终端环境配置记录 | ✅ 完成 |
@@ -47,6 +48,7 @@
 | [Zsh 配置](blog/zsh/index.md) | Zsh 终端配置与优化 | ✅ 完成 |
 | [reptyr 使用](blog/reptyr/index.md) | 将运行中的进程转移到新的终端 | 📝 TODO |
 | [Tmux 使用](blog/tmux/index.md) | 终端复用器 Tmux 配置与使用 | ✅ 完成 |
+| [Psmux 使用](blog/psmux/index.md) | Windows支持的终端复用器 Psmux 配置与使用 | ✅ 完成 |
 | [Netcat 局域网传输](blog/netcat/index.md) | Netcat 网络工具在局域网文件传输中的应用 | ✅ 完成 |
 
 ### 模型下载工具

@@ -15,7 +15,7 @@ math: true
 # Git 命令备忘
 
 Git 日常开发中常用的命令速查，包括分支管理、合并、暂存、版本回退等场景。
-
+- 保存`git`凭证： ```git config --global credential.helper store```
 ## 1. 分支管理
 
 ### 1.1 查看分支
@@ -179,6 +179,19 @@ git blame path/to/file       # 查看文件每行的修改记录
 # 只提交部分文件
 git add -p             # 交互式选择部分修改暂存
 ```
+
+## 8. 常见`git commit`备注
+| 类型 | 含义 | 示例 |
+| :--- | :--- | :--- |
+| `feat` | 新功能 (Feature) | `feat: add user login module` |
+| `fix` | 修复 Bug | `fix: resolve null pointer exception` |
+| `docs` | 文档变更 | `docs: update API README` |
+| `style` | 代码格式 (不影响逻辑) | `style: remove trailing whitespaces` |
+| `refactor` | 重构 (既非新功能也非修bug) | `refactor: simplify database connection logic` |
+| `perf` | 性能优化 | `perf: improve image loading speed` |
+| `test` | 测试相关 | `test: add unit tests for payment` |
+| `chore` | 构建/辅助工具变动 | `chore: update dependencies` |
+| `ci` | CI/CD 配置变更 | `ci: update GitHub Actions workflow` |
 
 ---
 

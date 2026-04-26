@@ -505,42 +505,7 @@ adb shell netstat
 # 查看 DNS
 adb shell getprop net.dns1
 ```
-
-## 12. 常见问题
-
-### 12.1 设备未识别
-
-```bash
-# 重启 adb 服务
-adb kill-server
-adb start-server
-
-# 检查 USB 调试是否开启
-# 检查驱动是否安装（Windows）
-# 尝试换 USB 线或端口
-```
-
-### 12.2 授权问题
-
-```bash
-# 撤销所有授权
-adb kill-server
-rm ~/.android/adbkey*    # Linux/macOS
-del %USERPROFILE%\.android\adbkey*    # Windows
-
-# 重新连接设备，重新授权
-```
-
-### 12.3 offline 状态
-
-```bash
-# 设备显示 offline
-adb kill-server
-adb start-server
-# 断开重连 USB，检查 USB 调试授权
-```
-
-## 13. 快速参考
+## 12. 快速参考
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -579,4 +544,3 @@ adb start-server
 - [ADB 官方文档](https://developer.android.com/studio/command-line/adb)
 - [ADB Shell 命令](https://developer.android.com/studio/command-line/shell)
 - [Platform Tools 下载](https://developer.android.com/studio/releases/platform-tools)
-

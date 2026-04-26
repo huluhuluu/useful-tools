@@ -1,7 +1,7 @@
 ---
 title: "包管理器常用命令备忘"
 date: 2026-03-29T12:00:00+08:00
-lastmod: 2026-03-29T12:00:00+08:00
+lastmod: 2026-04-25T12:00:00+08:00
 draft: false
 description: "npm/pip/apt/winget 等常用包管理器命令速查"
 slug: "package-managers"
@@ -179,7 +179,91 @@ scoop list
 # 清理旧版本
 scoop cleanup *
 scoop cache rm *
+
+# 换源
+```
+
+#### Scoop 换源
+
+`Scoop` 换源通常分两部分：
+
+1. `Scoop` 自己的仓库地址
+2. 已添加 bucket 的 Git 远程地址
+
+只改第 1 部分还不够，因为 `main`、`extras` 这些 bucket 本质上也是单独的 Git 仓库。
+
+查看当前配置：
+
+```powershell
+scoop config SCOOP_REPO
+scoop bucket list
+git -C "$HOME\scoop\apps\scoop\current" remote -v
+git -C "$HOME\scoop\buckets\main" remote -v
+```
+
+切到 Gitee 镜像：
+
+```powershell
+# 1. 修改 Scoop 自身仓库地址
+scoop config SCOOP_REPO https://gitee.com/scoop-installer/scoop
+
+# 2. 修改本地 Scoop 仓库的远程地址
+git -C "$HOME\scoop\apps\scoop\current" remote set-url origin https://gitee.com/scoop-installer/scoop
+
+# 3. 修改 main bucket 的远程地址
+git -C "$HOME\scoop\buckets\main" remote set-url origin https://gitee.com/scoop-installer/Main
+
+# 4. 更新
+scoop update
+```
+
+如果还加过其他 bucket，例如 `extras`、`versions`，也要分别改：
+
+```powershell
+git -C "$HOME\scoop\buckets\extras" remote set-url origin https://gitee.com/scoop-installer/Extras
+git -C "$HOME\scoop\buckets\versions" remote set-url origin https://gitee.com/scoop-installer/Versions
+```
+
+切回官方 GitHub：
+
+```powershell
+scoop config SCOOP_REPO https://github.com/ScoopInstaller/Scoop
+git -C "$HOME\scoop\apps\scoop\current" remote set-url origin https://github.com/ScoopInstaller/Scoop
+git -C "$HOME\scoop\buckets\main" remote set-url origin https://github.com/ScoopInstaller/Main
+scoop update
+```
+
+如果 bucket 已经乱了，最直接的办法是删掉再重新添加：
+
+```powershell
+scoop bucket rm main
+scoop bucket add main https://gitee.com/scoop-installer/Main
+```
+
+常用 bucket 重新添加示例：
+
+```powershell
+scoop bucket add extras https://gitee.com/scoop-installer/Extras
+scoop bucket add versions https://gitee.com/scoop-installer/Versions
+```
+
+验证是否生效：
+
+```powershell
+scoop config SCOOP_REPO
+scoop bucket list
+git -C "$HOME\scoop\apps\scoop\current" remote -v
+git -C "$HOME\scoop\buckets\main" remote -v
+```
+
+本机当前示例：
+
+```powershell
+scoop config SCOOP_REPO
+# https://gitee.com/scoop-installer/scoop
+
+git -C "$HOME\scoop\buckets\main" remote -v
+# origin https://gitee.com/scoop-installer/Main
 ```
 
 ---
-

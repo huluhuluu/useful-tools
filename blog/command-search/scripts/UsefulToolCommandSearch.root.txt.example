@@ -1,0 +1,6 @@
+# Write one absolute or relative path on a single line.
+# Absolute path example:
+# C:\Users\86147\Desktop\I_Am_A_File\学业\研\work\blog\HugoBlog\content\post\useful-tools\blog
+#
+# Relative path example (relative to this scripts directory):
+# ..\..\..

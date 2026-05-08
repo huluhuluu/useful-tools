@@ -19,15 +19,8 @@ math: true
 ## 1. 安装
 
 ```bash
-# 使用 npm 安装
-npm install -g @openai/codex
-
-# 验证安装
-codex --version
-# codex-cli 0.117.0 # 输出版本 安装成功
-
-# linux 环境下
-# 如果索引不到codex命令，可以尝试以下命令
+# 1. 依赖 Node.js 安装 下面使用 nvm 安装 nodejs
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash # 如果没有nvm
 # 激活nvm
 echo '
 export NVM_DIR="$HOME/.nvm"
@@ -35,10 +28,18 @@ export NVM_DIR="$HOME/.nvm"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+source ~/.zshrc
 nvm --version # 验证nvm
 export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node # 设置镜像源
 # 如果nodejs版本过低，可以使用nvm安装最新版本的nodejs
 nvm install 20 # 安装nodejs 20版本
+
+# 2. 使用 npm 安装
+npm install -g @openai/codex
+
+# 验证安装
+codex --version
+# codex-cli 0.117.0 # 输出版本 安装成功
 ```
 
 ## 2. cc-switch 配置第三方 API
@@ -67,17 +68,16 @@ cc-switch --version
 - [Linux CLI 版本](https://github.com/SaladDay/cc-switch-cli)，下面具体获取的包需要在 [release 界面获取](https://github.com/SaladDay/cc-switch-cli/releases)，优先获取 musl 静态编译版。
 
 ```bash
-# 1. 下载解压方式
+# 1. 直接脚本安装方式
+curl -fsSL https://github.com/SaladDay/cc-switch-cli/releases/latest/download/install.sh | bash
+
+# 2. 下载解压方式
 curl -LO https://github.com/SaladDay/cc-switch-cli/releases/download/v4.5.0/cc-switch-cli-v4.5.0-linux-x64-musl.tar.gz
 
 tar -xzf cc-switch-cli-*.tar.gz # 解压
 rm cc-switch-cli-*.tar.gz # 删除压缩包
 chmod +x cc-switch # 执行权限
 sudo mv cc-switch /usr/local/bin/ # 放到系统路径
-
-
-# 2. 直接脚本安装方式
-curl -fsSL https://github.com/SaladDay/cc-switch-cli/releases/latest/download/install.sh | bash
 ```
 
 ### 2.2 设置 API Key

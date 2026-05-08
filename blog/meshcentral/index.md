@@ -58,6 +58,22 @@ sudo apt install -y nodejs npm
 
 node -v  # v22.22.0 输出版本号表示安装成功
 npm -v # 10.9.4 输出版本号表示安装成功
+
+# 如果 node 版本过低，可以使用 nvm 安装最新版本的 nodejs
+# nvm 安装
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash 
+# 如果索引不到 node，需要激活nvm
+echo '
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.zshrc
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+source ~/.zshrc
+nvm --version # 验证nvm
+export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node # 设置镜像源
+# 如果nodejs版本过低，可以使用nvm安装最新版本的nodejs
+nvm install 20 # 安装nodejs 20版本
 ```
 
 ### 2.2 允许 Node 监听低端口

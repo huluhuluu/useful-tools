@@ -23,6 +23,7 @@
 |------|------|------|
 | [VSCode Copilot 配置](blog/copilot/index.md) | 配置 Copilot Chat 使用本地局域网大模型 API | ✅ 完成 |
 | [flash.vscode 插件](blog/flash-vscode/index.md) | 在 VSCode 中快速跳转到屏幕可见的任意一行 | ✅ 完成 |
+| [VSCode Markdown 预览插件组合](blog/vscode-preview/index.md) | `Live Preview`、`Markdown Preview Enhanced`、`Markdown All in One` 组合使用备忘 | ✅ 完成 |
 
 ### AI Agent 框架
 
@@ -31,6 +32,8 @@
 | [Claude Code 配置](blog/claude-code/index.md) | Anthropic 推出的本地运行 Agent 框架 | ✅ 完成 |
 | [iFlow CLI 配置](blog/iflow/index.md) | 阿里推出的终端 Agent 框架 | ✅ 完成 |
 | [Codex CLI 配置](blog/codex-cli-config/index.md) | OpenAI Codex CLI 配置第三方 API 端点 | ✅ 完成 |
+| [ccmanager 使用备忘](blog/ccmanager/index.md) | 会话管理、模型接入和 Agent 路由使用整理 | ✅ 完成 |
+| [cc-connect 接入微信个人号](blog/cc-connect-wechat/index.md) | 微信个人号接入与消息转发路径整理 | ✅ 完成 |
 
 ### 终端工具
 
@@ -46,7 +49,7 @@
 | [FZF 使用备忘](blog/fzf/index.md) | 命令行模糊搜索工具，提升终端效率 | ✅ 完成 |
 | [Zoxide 使用备忘](blog/zoxide/index.md) | 更智能的 cd 命令，自动记忆常用目录 | ✅ 完成 |
 | [Zsh 配置](blog/zsh/index.md) | Zsh 终端配置与优化 | ✅ 完成 |
-| [reptyr 使用](blog/reptyr/index.md) | 将运行中的进程转移到新的终端 | 📝 TODO |
+| [reptyr 使用](blog/reptyr/index.md) | 将运行中的进程转移到新的终端 | ✅ 完成 |
 | [Tmux 使用](blog/tmux/index.md) | 终端复用器 Tmux 配置与使用 | ✅ 完成 |
 | [Psmux 使用](blog/psmux/index.md) | Windows支持的终端复用器 Psmux 配置与使用 | ✅ 完成 |
 | [Netcat 局域网传输](blog/netcat/index.md) | Netcat 网络工具在局域网文件传输中的应用 | ✅ 完成 |
@@ -56,4 +59,3 @@
 | 文章 | 说明 | 状态 |
 |------|------|------|
 | [HuggingFace/ModelScope 下载器](blog/model-downloader/index.md) | HuggingFace 和 ModelScope 模型下载工具介绍 | ✅ 完成 |
-

@@ -228,6 +228,7 @@ codex --full-auto "帮我重构这个函数"
 /skills     # 管理技能
 /models     # 切换模型 这里可以调整思考模式 例如high extrahigh
 /statusline # 状态底栏的显示 空格选中 enter保存 esc取消
+# `Alt + V` windows 图片粘贴到 Codex CLI
 ```
 
 ## 4. rtk

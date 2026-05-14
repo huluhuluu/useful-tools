@@ -17,6 +17,7 @@ math: true
 Ubuntu 开发环境配置记录，包括常用软件安装、开发工具配置等。
 
 ## 1. 安装常用包
+
 ```bash
 # 安装常用工具
 sudo apt-get install zsh gzip netcat pv tmux nvtop htop lsof aria2 pigz git-lfs zoxide -y
@@ -50,7 +51,8 @@ echo 'export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"' >> ~/.zsh
 source ~/.zshrc # 使配置生效
 ```
 
-### 2.1 安装minifoge
+## 2. 安装 Miniforge
+
 ```bash
 # 下载安装脚本
 wget https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-x86_64.sh
@@ -73,3 +75,8 @@ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda/
 ```
 
+## 3. 说明
+
+- 这份配置更偏个人开发机初始化，目标是一次把常用 shell、包管理、`tmux`、`zoxide`、`fzf` 和 `conda` 环境准备好。
+- `CUDA` 环境变量部分只适用于本机确实安装了对应版本 CUDA 的情况。
+- `Miniforge` 这一节默认是 `Linux x86_64`，如果机器架构不同，需要替换成对应安装包。

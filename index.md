@@ -1,7 +1,7 @@
 ---
 title: tools
 date: 2026-01-30T08:00:00+08:00
-lastmod: 2026-03-27T23:00:00+08:00
+lastmod: 2026-05-14T22:20:00+08:00
 draft: false
 description: "开发过程中用到的一些实用小工具配置记录"
 slug: "useful-tools"
@@ -39,6 +39,7 @@ math: true
 |------|------|------|
 | [VSCode Copilot 配置](/p/copilot-config/) | 配置 Copilot Chat 使用本地局域网大模型 API | ✅ 完成 |
 | [flash.vscode 插件](/p/flash-vscode/) | 在 VSCode 中快速跳转到屏幕可见的任意一行 | ✅ 完成 |
+| [VSCode Markdown 预览插件组合](/p/vscode-markdown-preview/) | `Live Preview`、`Markdown Preview Enhanced`、`Markdown All in One` 组合使用备忘 | ✅ 完成 |
 
 ### AI Agent 框架
 
@@ -47,6 +48,8 @@ math: true
 | [Claude Code 配置](/p/claude-code/) | Anthropic 推出的本地运行 Agent 框架 | ✅ 完成 |
 | [iFlow CLI 配置](/p/iflow-cli/) | 阿里推出的终端 Agent 框架 | ✅ 完成 |
 | [Codex CLI 配置](/p/codex-cli-config/) | OpenAI Codex CLI 配置第三方 API 端点 | ✅ 完成 |
+| [ccmanager 使用备忘](/p/ccmanager/) | 会话管理、模型接入和 Agent 路由使用整理 | ✅ 完成 |
+| [cc-connect 接入微信个人号](/p/cc-connect-wechat/) | 微信个人号接入与消息转发路径整理 | ✅ 完成 |
 
 ### 终端工具
 
@@ -62,7 +65,7 @@ math: true
 | [FZF 使用备忘](/p/fzf/) | 命令行模糊搜索工具，提升终端效率 | ✅ 完成 |
 | [Zoxide 使用备忘](/p/zoxide/) | 更智能的 cd 命令，自动记忆常用目录 | ✅ 完成 |
 | [Zsh 配置](/p/zsh-config/) | Zsh 终端配置与优化 | ✅ 完成 |
-| [reptyr 使用](/p/reptyr-guide/) | 将运行中的进程转移到新的终端 | 📝 TODO |
+| [reptyr 使用](/p/reptyr-guide/) | 将运行中的进程转移到新的终端 | ✅ 完成 |
 | [Tmux 使用](/p/tmux-guide/) | 终端复用器 Tmux 配置与使用 | ✅ 完成 |
 | [Psmux 使用](/p/psmux-guide/) | Windows支持的终端复用器 Psmux 配置与使用 | ✅ 完成 |
 | [Netcat 局域网传输](/p/netcat/) | Netcat 网络工具在局域网文件传输中的应用 | ✅ 完成 |
@@ -74,4 +77,3 @@ math: true
 | [HuggingFace/ModelScope 下载器](/p/model-downloader/) | HuggingFace 和 ModelScope 模型下载工具介绍 | ✅ 完成 |
 
 ---
-

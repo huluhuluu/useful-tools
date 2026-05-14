@@ -2,7 +2,7 @@
 title: "Ubuntu Proxy Configuration"
 date: 2026-04-10T01:30:00+08:00
 lastmod: 2026-04-10T01:30:00+08:00
-draft: **true**
+draft: true
 description: "内网服务器代理配置方案，包括 Clash 内核、SSH 反向端口转发、Tailscale 等方法"
 slug: "ubuntu-proxy"
 tags: ["tools"]

@@ -2,7 +2,7 @@
 title: "华为开发板常用命令备忘"
 date: 2026-03-29T13:00:00+08:00
 lastmod: 2026-03-29T13:00:00+08:00
-draft: true
+draft: flase
 description: "华为 Atlas/Ascend 开发板常用命令速查"
 slug: "huawei-board-commands"
 tags: ["tools"]
@@ -35,7 +35,6 @@ touch authorized_keys && vim authorized_keys
 # 设置权限
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
-
 ```
 
 ### 1.2 查看 NPU 状态
@@ -170,21 +169,6 @@ conda config --add channels https://mirrors.ustc.edu.cn/anaconda/cloud/conda-for
 conda config --add channels https://mirrors.ustc.edu.cn/anaconda/cloud/bioconda/
 ```
 
-## 2. CANN 环境
-
-CANN (Compute Architecture for Neural Networks) 是华为 AI 异构计算架构。
-
-### 2.1 环境变量
-
-```bash
-# 设置 CANN 环境变量
-source /usr/local/Ascend/ascend-toolkit/set_env.sh
-source /usr/local/Ascend/nnal/atc/set_env.sh
-
-# 查看环境变量
-echo $ASCEND_HOME
-echo $LD_LIBRARY_PATH
-```
 
 ---
 

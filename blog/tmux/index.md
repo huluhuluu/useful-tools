@@ -25,6 +25,8 @@ sudo apt install -y tmux
 # 验证安装
 tmux -V
 # tmux 3.2a # 输出版本号表示安装成功
+
+echo 'set -g mouse on' >> ~/.tmux.conf # 开启鼠标模式
 ```
 
 ## 2. 使用

@@ -59,3 +59,4 @@
 | 文章 | 说明 | 状态 |
 |------|------|------|
 | [HuggingFace/ModelScope 下载器](blog/model-downloader/index.md) | HuggingFace 和 ModelScope 模型下载工具介绍 | ✅ 完成 |
+| [Hugging Face CLI 与 Codex Agent](blog/huggingface-cli-agent/index.md) | `hf` CLI 安装、认证、下载上传，以及 Codex Agent Skill 使用 | ✅ 完成 |

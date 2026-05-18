@@ -1,8 +1,8 @@
 ---
 title: "Ubuntu Proxy Configuration"
 date: 2026-04-10T01:30:00+08:00
-lastmod: 2026-04-10T01:30:00+08:00
-draft: true
+lastmod: 2026-05-18T13:10:00+08:00
+draft: false
 description: "内网服务器代理配置方案，包括 Clash 内核、SSH 反向端口转发、Tailscale 等方法"
 slug: "ubuntu-proxy"
 tags: ["tools"]
@@ -30,74 +30,111 @@ math: true
 
 ## 方案一：Clash 内核
 
-在服务器上直接运行 Clash 内核，服务器独立使用代理。
+在服务器上直接运行 Clash 内核，服务器独立使用代理, 当前[clash-for-linux](https://github.com/wnlen/clash-for-linux)项目提供了更加完整、更优雅的 Linux Clash / Mihomo 运行平台。
 
-### 1.1 下载 Clash 内核
+### 1.1 下载使用
+
+项目提供的脚本可以一键安装配置，手动提供代理链接即可：
 
 ```bash
-# 下载 clash 内核（选择对应架构）
-# AMD64
-wget https://github.com/Dreamacro/clash/releases/download/v1.18.0/clash-linux-amd64-v1.18.0.gz
-# ARM64
-wget https://github.com/Dreamacro/clash/releases/download/v1.18.0/clash-linux-arm64-v1.18.0.gz
+> git clone --branch master --depth 1 https://ghfast.top/https://github.com/wnlen/clash-for-linux.git
+> cd clash-for-linux
+> bash install.sh
+Cloning into 'clash-for-linux'...
+remote: Enumerating objects: 44, done.
+remote: Counting objects: 100% (44/44), done.
+remote: Compressing objects: 100% (37/37), done.
+remote: Total 44 (delta 1), reused 31 (delta 1), pack-reused 0 (from 0)
+Receiving objects: 100% (44/44), 12.85 MiB | 5.95 MiB/s, done.
+Resolving deltas: 100% (1/1), done.
+⏳ 正在下载：Country.mmdb [gh-proxy]
+######################################################################## 100.0%
+⏳ 正在下载：geoip.metadb [gh-proxy]
+######################################################################## 100.0%
+⏳ 正在下载：GeoLite2-ASN.mmdb [gh-proxy]
+######################################################################## 100.0%
+⏳ 正在下载：GeoIP.dat [gh-proxy]
+######################################################################## 100.0%
+⏳ 正在下载：GeoSite.dat [gh-proxy]
+######################################################################## 100.0%
+⏳ 正在下载：mihomo（可在 .env 中设置 MIHOMO_DOWNLOAD_BASE / MIHOMO_DOWNLOAD_URL） [gh-proxy]
+######################################################################## 100.0%
+⏳ 正在下载：yq [gh-proxy]
+######################################################################## 100.0%
+⏳ 正在下载：subconverter [gh-proxy]
+######################################################################## 100.0%
+🎯 端口冲突：[mixed-port] 7890 🎲 随机分配：7892
+🎯 端口冲突：[external-controller] 0.0.0.0:9090 🎲 随机分配：0.0.0.0:9091
 
-# 解压并安装
-gunzip clash-linux-amd64-v1.18.0.gz
-mv clash-linux-amd64-v1.18.0 clash
-chmod +x clash
-sudo mv clash /usr/local/bin/
+🚀 请输入订阅链接
+> http://example.com/subscription
+⏳ 正在下载：subscription
+######################################################################## 100.0%
+✨ 订阅已生效
+
+🎉 安装完成
+
+🚀 当前内核：mihomo
+🧬 系统架构：amd64
+💻 环境模式：容器
+📁 安装路径：/root/clash-for-linux
+👤 安装方式：root / system
+🔧 运行后端：script
+📦 订阅：已配置
+🔢 节点数量：46
+
+╔════════════════════════════════════════════════╗
+║                 🐱 Web 控制台                  ║
+╠════════════════════════════════════════════════╣
+║                                                ║
+║      🔓 注意放行端口：9091                      ║
+║      📶 状态：可访问                            ║
+║      🏠 内网：http://127.0.0.1:9091/ui         ║
+║      📡 公共：http://board.example.com         ║
+║      🔑 密钥：ababaabababababa                 ║
+║                                                ║
+╚════════════════════════════════════════════════╝
+
+〽️ 常用命令
+  clashon            🚀 开启代理
+  clashoff           ⛔ 关闭代理
+  clashctl select    💫 选择节点
+🕹️  控制台
+  clashui            🕹️  查看 Web 控制台
+  clashsecret        🔑 查看或设置 Web 密钥
+📦 订阅
+  clashctl add       ➕ 添加订阅
+  clashctl add local ➕ 从 runtime/subscriptions 导入本地订阅
+  clashctl use       💱 切换订阅
+  clashctl ls        📜 查看订阅列表
+📌 高级
+  clashctl lan       🏠 局域网代理管理
+  clashctl tun       🧪 Tun 模式管理
+  clashctl mixin     🧩 Mixin 配置管理
+  clashctl sub       🧩 订阅高级管理（启用 / 禁用 / 重命名 / 删除）
+  clashctl upgrade   🚀 升级当前或指定内核
+  clashctl update    🔄 更新项目代码
+  clashctl completion 💡 导出 Bash / Zsh 补全脚本
+📜 日志
+  clashctl doctor    🩺 诊断面板
+  clashctl log/logs  📜 查看日志
+
+💡 显示更多帮助命令：clashctl -h
+
+💡 clashon / clashoff 为 shell 快捷入口；新终端会自动生效
+💡 当前终端若暂不可用，请先使用 clashctl on / clashctl off
 ```
+### 1.2 配置代理
 
-### 1.2 配置 Clash
+这里的`Web 控制台`提供本地和公共两个版本，公共控制台可以直接公网访问需要配合密钥使用，这里需要手动设置`Global`节点，侧栏提供监控面板监控内存使用/上传速度/下载速度等信息。服务器本地的控制台可以通过[Live Preview](https://github.com/microsoft/vscode-livepreview)插件访问，参考[VSCode 预览插件组合备忘](../vscode-preview/index.md)里介绍的使用方法。
 
-```bash
-# 创建配置目录
-mkdir -p ~/.config/clash
+### 1.3 使用代理
 
-# 创建配置文件（从本地 PC 复制或自行编写）
-# 将订阅链接或 config.yaml 放入 ~/.config/clash/config.yaml
-
-# 示例：从本地上传配置文件
-# 在本地 PC 执行：
-scp ~/.config/clash/config.yaml user@server:~/.config/clash/
-```
-
-### 1.3 启动 Clash
+注意这里的端口是随机分配的，安装完成后会输出实际使用的端口号，例如上面的 `7892`。设置系统环境变量让应用走代理：
 
 ```bash
-# 前台运行（测试用）
-clash -d ~/.config/clash
-
-# 后台运行
-nohup clash -d ~/.config/clash > ~/.config/clash/clash.log 2>&1 &
-
-# 或使用 systemd 管理（推荐）
-sudo tee /etc/systemd/system/clash.service << EOF
-[Unit]
-Description=Clash Proxy
-After=network.target
-
-[Service]
-Type=simple
-User=$USER
-ExecStart=/usr/local/bin/clash -d /home/$USER/.config/clash
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable clash
-sudo systemctl start clash
-```
-
-### 1.4 设置系统代理
-
-```bash
-export http_proxy="http://127.0.0.1:7890"
-export https_proxy="http://127.0.0.1:7890"
-export all_proxy="socks5://127.0.0.1:7890" # 注意这里是 socks5 协议
+export http_proxy="http://127.0.0.1:7892" && export https_proxy="http://127.0.0.1:7892"
+export all_proxy="socks5://127.0.0.1:7892" # 注意这里是 socks5 协议
 ```
 
 ---
@@ -117,9 +154,9 @@ export all_proxy="socks5://127.0.0.1:7890" # 注意这里是 socks5 协议
 │ (Clash) │                      │ (转发)   │
 └─────────┘                      └─────────┘
 ```
-### 2.2 从 PC 连接到服务器（更常用）
+### 2.2 从 PC 连接到服务器
 
-如果服务器无法直接连接 PC，可以从 PC 连接到服务器：
+从 PC 连接到服务器搭建端口转发隧道，这里的本地端口要对应代理软件端口(可以在设置中查看)：
 
 ```bash
 # 在 PC 上执行：
@@ -144,13 +181,35 @@ export all_proxy="socks5://127.0.0.1:7890" # 注意这里是 socks5 协议
 使用 Tailscale 等 VPN 工具组建虚拟局域网，PC 和服务器可以互相访问。
 
 ### 3.1 安装 Tailscale
+- Linux：`Tailscale` 内核模式依赖 `TUN`，通常需要宿主机管理员权限，联系服务器管理员或者使用无TUN模式。
+    ```bash
+    curl -fsSL https://tailscale.com/install.sh | sh
+    # 启动服务
+    sudo tailscale up
+    # 接着会输出一个登录链接，复制到浏览器里登录后服务器就加入了你的 tailnet
+    ```
+  - 无 `TUN` 模式：
+  ```bash
+    curl -fsSL https://tailscale.com/install.sh | sh
+    # 安装完后分别在两个 shell 执行
+    tailscaled \
+        --tun=userspace-networking \
+        --socks5-server=127.0.0.1:1055 \
+        --outbound-http-proxy-listen=127.0.0.1:1055
+    tailscale up
+    # 接着会输出一个登录链接，复制到浏览器里登录后服务器就加入了你的 tailnet
 
-**在 PC 和服务器上分别安装：**
+    # 无 TUN 模式下，应用不会自动走 Tailscale，要显式走代理
+    # 例如
+    export HTTP_PROXY=http://127.0.0.1:1055
+    export HTTPS_PROXY=http://127.0.0.1:1055
+    ```
+- Windows：
+  - 直接从 [Tailscale 官网](https://tailscale.com/download/windows) 下载 Windows 安装包，安装后登录即可。
 
-```bash
-# Ubuntu/Debian
-curl -fsSL https://tailscale.com/install.sh | sh
-```
+- Android：
+  - Google Play 可用：直接从 `Google Play` 安装 Android 客户端。
+  - Google Play 不可用：从 [Tailscale](https://github.com/tailscale/tailscale-android) 官方提供的 [Android APK](https://pkgs.tailscale.com/stable/#android) 手动安装。
 
 ### 3.2 登录并组网
 
@@ -177,7 +236,11 @@ tailscale status
 
 ### 3.4 使用代理
 
-组网后，服务器可以直接访问 PC 的代理端口：
+Tailscale 有 TUN 模式和无 TUN 模式，两种情况下使用 PC 代理的方式不同。
+
+#### 3.4.1 有 TUN 模式
+
+服务器有正常的 Tailscale 网卡和路由时，可以直接访问 PC 的 Tailscale IP。PC 代理软件需要开启“**允许局域网连接**”功能。
 
 ```bash
 # 在服务器上设置代理（使用 PC 的 Tailscale IP）
@@ -187,6 +250,80 @@ export all_proxy="socks5://100.64.0.1:7890"
 
 # 测试连接
 curl -x http://100.64.0.1:7890 https://www.google.com
+```
+
+#### 3.4.2 无 TUN 模式
+
+无 TUN 模式下，服务器不会得到一个正常的 Tailscale 网卡，也不会自动拥有到 `100.64.0.0/10` 的系统路由。
+
+`tailscaled` 提供的 `127.0.0.1:1055` 是一个本地代理入口。它的作用是：让服务器上的应用通过这个入口访问 tailnet 里的设备，例如 PC 的 `100.64.0.1`。
+
+要让服务器使用 PC 上的 Clash / Mihomo 代理，实际链路分成两段：
+
+```text
+Server app
+  -> 127.0.0.1:1055  # server 上的 Tailscale userspace proxy
+  -> 100.64.0.1:7890 # PC 上的 Clash / Mihomo 代理端口
+  -> Internet
+```
+
+PC 端代理软件仍然需要开启“允许局域网连接”或等价的 `allow-lan` 配置， 先用 `curl` 做单次测试。`curl` 支持 `--preproxy`，可以显式表达这条两级代理链：
+
+```bash
+curl \
+  --preproxy socks5h://127.0.0.1:1055 \
+  -x http://100.64.0.1:7890 \
+  https://www.google.com
+```
+
+这里两个参数的含义是：
+
+- `--preproxy socks5h://127.0.0.1:1055`：先通过服务器本机的 Tailscale userspace proxy 进入 tailnet
+- `-x http://100.64.0.1:7890`：再使用 PC 上的 HTTP 代理端口访问目标网站
+
+不要把环境变量直接写成下面这样：
+
+```bash
+export http_proxy="http://127.0.0.1:1055"
+export https_proxy="http://127.0.0.1:1055"
+```
+
+这样只是让应用把请求交给 Tailscale userspace proxy，不等价于使用 PC 上的 Clash / Mihomo 出网。
+
+通用命令行工具通常只支持一个代理地址，没法只靠 `HTTP_PROXY` / `HTTPS_PROXY` 表达两级代理链。其它应用按下面三类处理：
+
+| 应用能力 | 做法 |
+|----------|------|
+| 支持 `preproxy` / 代理链 | 直接按应用自己的代理链配置填写 `127.0.0.1:1055 -> 100.64.0.1:7890` |
+| 只支持一个 `HTTP_PROXY` / `HTTPS_PROXY` | 在服务器本地起一个代理转发器，把两级代理链封装成本地单端口 |
+| 完全不支持代理 | 优先用 SSH 反向端口转发，或者改用支持代理的下载/上传工具 |
+
+例如用第二类，可以使用 `gost` 在服务器上起一个本地 HTTP 代理，把后面的两级链路封装起来：
+
+```bash
+gost \
+  -L http://127.0.0.1:7891 \
+  -F socks5://127.0.0.1:1055 \
+  -F http://100.64.0.1:7890
+```
+
+之后其它应用只需要配置一个普通代理地址：
+
+```bash
+export http_proxy="http://127.0.0.1:7891"
+export https_proxy="http://127.0.0.1:7891"
+
+curl https://www.google.com
+```
+
+这时链路变成：
+
+```text
+Other app
+  -> 127.0.0.1:7891 # server 上的 gost 本地代理
+  -> 127.0.0.1:1055 # server 上的 Tailscale userspace proxy
+  -> 100.64.0.1:7890 # PC 上的 Clash / Mihomo 代理端口
+  -> Internet
 ```
 
 ### 3.5 其他组网工具
@@ -202,7 +339,8 @@ curl -x http://100.64.0.1:7890 https://www.google.com
 
 ## 参考链接
 
-- [Clash 官方文档](https://clash.wiki/)
+- [clash-for-linux](https://github.com/wnlen/clash-for-linux)
 - [SSH 端口转发详解](https://www.ssh.com/academy/ssh/tunneling/example)
 - [Tailscale 官方文档](https://tailscale.com/kb/)
 - [ZeroTier 官方文档](https://docs.zerotier.com/)
+- [GOST 转发链文档](https://gost.run/concepts/chain/)

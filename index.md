@@ -75,5 +75,6 @@ math: true
 | 文章 | 说明 | 状态 |
 |------|------|------|
 | [HuggingFace/ModelScope 下载器](/p/model-downloader/) | HuggingFace 和 ModelScope 模型下载工具介绍 | ✅ 完成 |
+| [Hugging Face CLI 与 Codex Agent](/p/huggingface-cli-agent/) | `hf` CLI 安装、认证、下载上传，以及 Codex Agent Skill 使用 | ✅ 完成 |
 
 ---

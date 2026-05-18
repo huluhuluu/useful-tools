@@ -144,7 +144,7 @@ https://服务器域名/
 
 ```bash
 # 下面的ip必须修改为可达ip
-(wget "https://127.0.0.1:8009/meshagents?script=1" --no-check-certificate -O ./meshinstall.sh || wget "https://127.0.0.1:8009/meshagents?script=1" --no-proxy --no-check-certificate -O ./meshinstall.sh) && chmod 755 ./meshinstall.sh && sudo -E ./meshinstall.sh https://127.0.0.1:8009 'cE9zJdHvGPLb9ny480kIVzV9EWJmqsZfMWpanPI2QyRu0eutcP5xtRh4J5MI3FoB' || ./meshinstall.sh https://127.0.0.1:8009 'cE9zJdHvGPLb9ny480kIVzV9EWJmqsZfMWpanPI2QyRu0eutcP5xtRh4J5MI3FoB'
+(wget "https://127.0.0.1:8009/meshagents?script=1" --no-check-certificate -O ./meshinstall.sh || wget "https://127.0.0.1:8009/meshagents?script=1" --no-proxy --no-check-certificate -O ./meshinstall.sh) && chmod 755 ./meshinstall.sh && sudo -E ./meshinstall.sh https://127.0.0.1:8009 '<mesh-agent-token>' || ./meshinstall.sh https://127.0.0.1:8009 '<mesh-agent-token>'
 ```
 
 ## 4. Windows 机器安装 Mesh Agent

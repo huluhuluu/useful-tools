@@ -24,7 +24,7 @@ math: true
 
 [Live Preview](https://github.com/microsoft/vscode-livepreview) 适合在 VSCode 里快速起一个预览服务，通过`ctrl+shift+p`打开`Vscode`命令面板，输入`Live Preview: Start Server`进行启动
 ![VSCode 命令面板里启动 Live Preview 服务](./png/live-preview-start-server.png)
-随后可以直接打开服务器上部署的网页地址，例如
+随后可以直接打开服务器上部署的**静态**网页，
 ![浏览器里查看 Live Preview 页面效果](./png/live-preview-browser-view.png)
 ## 2. Markdown 相关插件
 

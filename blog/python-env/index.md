@@ -84,8 +84,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 pip install uv
 
 # 换源
-# export UV_INDEX_URL=https://pypi.mirrors.ustc.edu.cn/simple/ # 临时生效
-echo 'index-url = "https://pypi.mirrors.ustc.edu.cn/simple/"' > ~/.config/uv/uv.toml
+# export UV_INDEX_URL=https://mirrors.ustc.edu.cn/pypi/simple # 临时生效
+echo 'index-url = "https://mirrors.ustc.edu.cn/pypi/simple"' > ~/.config/uv/uv.toml
 ```
 
 ### 2.2 常用命令

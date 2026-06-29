@@ -17,32 +17,58 @@ math: true
 [Codex CLI](https://github.com/openai/codex) 是 OpenAI 官方推出的终端 AI Agent 工具，支持代码生成、文件操作等。本文记录如何配置第三方 api。
 
 ## 1. 安装
-
+下面方式任选其一，安装完成后可以在终端执行 `codex --version` 查看版本，可以参考[菜鸟教程](https://www.runoob.com/codex/codex-install.html)。
+### 1.1 脚本安装
+- `windows` 安装:
+```pwsh
+# 网络不通需要自己使用代理 例如开启clash
+curl -fsSL https://chatgpt.com/codex/install.sh | sh
+```
+- `linux/mac`安装
 ```bash
-# 1. 依赖 Node.js 安装 下面使用 nvm 安装 nodejs !!已有工具可直接进入步骤2 这里步骤1是linux安装版本
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash # 如果没有nvm
-# 激活nvm
-echo '
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.zshrc
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-source ~/.zshrc
-nvm --version # 验证nvm
-export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node # 设置镜像源
-# 如果nodejs版本过低，可以使用nvm安装最新版本的nodejs
-nvm install 20 # 安装nodejs 20版本
-
-# 2. 使用 npm 安装 linux/windows
-npm install -g @openai/codex
-
-# 验证安装
-codex --version
-# codex-cli 0.117.0 # 输出版本 安装成功
+# 网络不通需要自己使用代理
+# 例如: export https_proxy=http://127.0.0.1:7890 && export http_proxy=http://127.0.0.1:7890
+curl -fsSL https://chatgpt.com/codex/install.sh | sh
 ```
 
+### 1.2 包管理器安装
+还可以通过包管理器安装，安装步骤如下：
+- `windows/linux`安装:
+  - `nodejs`安装可以参考[菜鸟教程](https://www.runoob.com/nodejs/nodejs-install-setup.html)：具体来说，`codex-cli` 可以依赖 nodejs 环境安装， `nodejs`的`windows`版本，直接从[官网](https://nodejs.org/en/download/)下载`msi`后缀包安装，安装完成后执行 `node -v` 查看版本，或者通过`pwsh`命令行`winget install -e --id OpenJS.NodeJS.LTS`安装，参考[博客](https://zhuanlan.zhihu.com/p/1970615672196276433)。 
+  下面是`linux`安装步骤：
+    ```bash
+    # 1. 使用nvm包管理器安装 Node.js  !!已有可忽略
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash # 如果没有nvm
+    # 激活nvm 这里是zsh的配置，如果是bash请修改~/.bashrc
+    echo '
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.zshrc
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    source ~/.zshrc
+    nvm --version # 验证nvm
+    export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node # 设置镜像源
+    # 如果nodejs版本过低，可以使用nvm安装最新版本的nodejs
+    nvm install 20 # 安装nodejs 20版本
+    ```
+  - `codex`安装
+    ```bash
+    # 使用 npm 安装 (linux/windows)
+    npm install -g @openai/codex
+
+    # 验证安装
+    codex --version
+    # codex-cli 0.117.0 # 输出版本 安装成功
+    ```
+- `mac`安装
+  ```bash
+  # Install using Homebrew
+  brew install --cask codex
+  ```
+
 ## 2. cc-switch 配置第三方 API
+直接修改配置文件容易出现各种问题，推荐使用 [cc-switch](https://github.com/farion1231/cc-switch)统一管理, 桌面版使用可以参考[菜鸟教程](https://www.runoob.com/vibe-coding/cc-switch.html)
 ### 2.1 安装 cc-switch
 
 - [windows cli版本](https://github.com/SaladDay/cc-switch-cli/releases)安装演示如下，[release 界面获取](https://github.com/SaladDay/cc-switch-cli/releases)复制对应的下载版本连接，参考下面内容：
@@ -81,22 +107,22 @@ sudo mv cc-switch /usr/local/bin/ # 放到系统路径
 ```
 
 ### 2.2 设置 API Key
-参考[文档](https://github.com/SaladDay/cc-switch-cli) (有[中文版](https://github.com/SaladDay/cc-switch-cli/blob/main/README_ZH.md))，输入对应的模型提供商、URL、模型 ID、接口令牌等信息。**部分自己搭建的第三方api的`base_url`需要加`/v1`，不然请求可能会自动路由到`/login`的返回界面**
+参考[文档](https://github.com/SaladDay/cc-switch-cli) (有[中文版](https://github.com/SaladDay/cc-switch-cli/blob/main/README_ZH.md))，输入对应的模型提供商、URL、模型 ID、接口令牌等信息。**部分自己搭建的第三方api的`base_url`需要加`/v1`，不然请求可能会自动路由到`/login`的返回界面**，流程大概如下，对照注释查看
 
 ```bash
 ➜  cc-switch --app codex provider add # 添加新供应商 这里需指定app为codex
 Add New Provider
 ==================================================
-> Select provider type: Add Third-Party Provider
+> Select provider type: Add Third-Party Provider # 得选择到第三方供应商
 > Provider Name: example
 > Website URL (opt.):
 Generated ID: example
 
 Configure Codex Provider:
-> OpenAI API Key: sk-abababababababababababababab
+> OpenAI API Key: sk-abababababababababababababab # 站点的key
 > Base URL: http://example.com/v1 # 注意这里部分自建站点需要加/v1 同时注意这里的协议
-> Model: gpt-5.3-codex
-> Configure optional fields (notes,  sort index)? No
+> Model: gpt-5.5 # 选择模型
+> Configure optional fields (notes,  sort index)? No # 可以跳过
 
 === Provider Configuration Summary ===
 ID: example
@@ -107,7 +133,7 @@ Core Configuration:
   Config (TOML): 10 lines
 ======================
 >
-Confirm create this provider? Yes
+Confirm create this provider? Yes # 确认配置
 
 ✓ Successfully added provider 'example' 
 
@@ -144,7 +170,7 @@ skill-name/
 - [skillsmp](https://skillsmp.com/)
 - [skills.sh](https://skills.sh/)
 
-把下载好的 Skill 放到 Codex CLI 的 skills 目录就可以在 Codex CLI 中通过`/skills`命令启用：
+把下载好的 Skill 放到 Codex CLI 的 skills 目录就可以在 Codex CLI 中通过`/skills`命令启用，另外同样可以通过cc-switch统一管理，方便在不同模型间切换。
 
 下面以 [matplotlib](https://skills.sh/davila7/claude-code-templates/matplotlib) 为例，右边有 install 命令：
 
@@ -206,7 +232,7 @@ codex
 ### 3.1 基本使用
 
 ```bash
-# 启动交互模式
+# 启动交互模式 通常使用这个方式执行
 codex
 
 # 指定模型
@@ -233,7 +259,7 @@ codex --full-auto "帮我重构这个函数"
 
 ## 4. rtk
 
-[rtk](https://www.rtk-ai.app/) 在命令输出进入上下文窗口之前对其进行压缩。 更好的推理。更长的会话。更低的成本。
+[rtk](https://www.rtk-ai.app/) 可以在`codex`命令输出进入上下文窗口之前对其进行压缩。 更好的推理。更长的会话。更低的成本。
 
 ### 4.1 Linux
 

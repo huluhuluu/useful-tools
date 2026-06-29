@@ -63,37 +63,6 @@ adb devices
 # List of devices attached
 # abc123    device
 ```
-**DEBUG:`no permissions (user huluhulu is not in the plugdev group);`** ，[参考](https://blog.csdn.net/MrMyGod/article/details/140270806)
-1. 确保自己添加在组`plugdev`中,  第一次添加需要重新登录用户才能生效。
-```bash
-sudo usermod -aG plugdev $USER
-```
-2. 添加 `udev` 规则，创建文件 `/etc/udev/rules.d/51-android.rules`，内容如下（根据`lsusb`命令的输出设置）：
-```bash
-huluhulu@march-dlng:~$ lsusb # 如果修改了手机的连接模式，下面id会随之变化(例如从仅充电修改成文件传输)
-Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 001 Device 002: ID 048d:5702 Integrated Technology Express,  Inc. RGB LED Controller
-Bus 001 Device 003: ID 05e3:0608 Genesys Logic,  Inc. Hub
-Bus 001 Device 004: ID 05e3:0608 Genesys Logic,  Inc. Hub
-Bus 001 Device 005: ID 046d:c31c Logitech,  Inc. Keyboard K120
-Bus 001 Device 006: ID 046d:c53f Logitech,  Inc. USB Receiver
-Bus 001 Device 011: ID 22d9:2765 OPPO Electronics Corp. Oppo N1 # ----> 这里是连接的手机 记住ID后面的数字
-Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
-
-# 例如上面手机的 ID 是 22d9:2765，分别表示厂商 ID 和产品 ID，规则内容如下
-
-# 接下来添加`udev`规则
-sudo vim /etc/udev/rules.d/51-android.rules
-# 把下面内容添加到文件中，保存退出
-# SUBSYSTEM=="usb",  ATTR{idVendor}=="22d9",  ATTR{idProduct}=="2765",  MODE="0666" # 这里0666表示所有用户可读写设备
-
-# 修改权限并重启udev
-sudo chmod a+rx /etc/udev/rules.d/51-android.rules
-sudo service udev restart
-# 重启adb服务
-sudo adb kill-server
-sudo adb start-server
-```
 
 ### 2.2 无线连接
 
@@ -505,7 +474,56 @@ adb shell netstat
 # 查看 DNS
 adb shell getprop net.dns1
 ```
-## 12. 快速参考
+
+## 12. 常见问题
+### 12.1 没有权限
+**DEBUG:`no permissions (user huluhulu is not in the plugdev group);`** 
+```bash
+➜  ~ adb devices
+List of devices attached
+abababab	no permissions (missing udev rules? user is in the plugdev group); see [http://developer.android.com/tools/device.html]
+```
+需要添加udev rule，[参考](https://blog.csdn.net/MrMyGod/article/details/140270806)
+1. 确保自己添加在组`plugdev`中,  第一次添加需要重新登录用户才能生效。
+```bash
+sudo usermod -aG plugdev $USER
+```
+1. 添加 `udev` 规则，创建文件 `/etc/udev/rules.d/51-android.rules`，内容如下（根据`lsusb`命令的输出设置）：
+```bash
+$ lsusb # 如果修改了手机的连接模式，下面id会随之变化(例如从仅充电修改成文件传输)
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 002: ID 048d:5702 Integrated Technology Express,  Inc. RGB LED Controller
+Bus 001 Device 003: ID 05e3:0608 Genesys Logic,  Inc. Hub
+Bus 001 Device 004: ID 05e3:0608 Genesys Logic,  Inc. Hub
+Bus 001 Device 005: ID 046d:c31c Logitech,  Inc. Keyboard K120
+Bus 001 Device 006: ID 046d:c53f Logitech,  Inc. USB Receiver
+Bus 001 Device 011: ID 22d9:2765 OPPO Electronics Corp. Oppo N1 # ----> 这里是连接的手机 记住ID后面的数字
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+
+# 例如上面手机的 ID 是 22d9:2765，分别表示厂商 ID 和产品 ID，规则内容如下
+
+# 接下来添加`udev`规则
+sudo vim /etc/udev/rules.d/51-android.rules
+# 把下面内容添加到文件中，保存退出
+# SUBSYSTEM=="usb",  ATTR{idVendor}=="22d9",  ATTR{idProduct}=="2765",  MODE="0666" # 这里0666表示所有用户可读写设备
+
+# 修改权限并重启udev
+sudo chmod a+rx /etc/udev/rules.d/51-android.rules
+sudo service udev restart
+# 重启adb服务
+sudo adb kill-server
+sudo adb start-server
+```
+
+## 12.2 未授权
+在手机 USB 调试授权弹窗，点击允许。
+```bash
+➜ adb devices
+List of devices attached
+abababa	unauthorized
+```
+
+## 13. 快速参考
 
 ```
 ┌─────────────────────────────────────────────────────┐

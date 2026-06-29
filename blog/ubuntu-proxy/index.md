@@ -326,6 +326,25 @@ Other app
   -> Internet
 ```
 
+#### 3.4.3 使用出口节点做ip转发
+参考[官方教程](https://tailscale.com/docs/concepts/userspace-networking)，可以使用同一组网内的其它机器作为出口节点，做 ip 转发。
+```bash
+# 存放有关文件 避免与主tail实例冲突
+mkdir -p ~/tail_exit/tail_exit_1
+tailscaled \
+  --tun=userspace-networking \
+  --state=$HOME/tail_exit/tail_exit_1/state \
+  --socket=$HOME/tail_exit/tail_exit_1/tailscaled.sock \
+  --socks5-server=172.17.0.1:10551 
+# 注意这里ip 如果需要给docker内使用代理需要写docker的网段ip 常见为172.17.0.1
+# 端口按需配置
+
+# 启动 hostname是显示的实例的名称 exit-node是出口节点的名称
+tailscale --socket=$HOME/tail_exit/tail_exit_1/tailscaled.sock up \
+  --hostname="tail-exit-1" \
+  --exit-node=Node_Name
+```
+
 ### 3.5 其他组网工具
 
 | 工具 | 特点 |

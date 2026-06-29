@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('Interactive', 'Preview', 'BuildIndex')]
+    [ValidateSet('Interactive', 'Preview', 'BuildIndex', 'CopyText', 'CopyPath')]
     [string]$Mode = 'Interactive',
 
     [string]$Root,
@@ -193,17 +193,6 @@ function Build-IndexItems {
             if ($line -match '^(#{1,6})\s+(.+?)\s*$') {
                 $heading = $matches[2].Trim()
                 $currentHeading = $heading
-                $items.Add([pscustomobject]@{
-                        Id          = $nextId
-                        Kind        = 'heading'
-                        FileRel     = $relativePath
-                        FileAbs     = $file.FullName
-                        Line        = $i + 1
-                        Title       = $articleTitle
-                        Summary     = Trim-Display -Text $heading -Max 100
-                        EncodedText = Encode-ItemText -Text $heading
-                    })
-                $nextId++
                 continue
             }
 
@@ -351,8 +340,13 @@ function Show-Preview {
 
     if ($item.Kind -eq 'code') {
         $text = Decode-ItemText -Encoded $item.EncodedText
+        $context = Get-ContextSnippet -Path $item.FileAbs -LineNumber $item.Line -Radius 10
         $body = @(
+            'snippet:'
             $text
+            ''
+            'context:'
+            $context
             ''
             'keys: enter/ctrl-o=open  ctrl-y=copy  ctrl-p=copy-path'
         )
@@ -385,6 +379,26 @@ function Copy-ItemText {
     Set-Clipboard -Value $text
 }
 
+function Copy-IndexItemText {
+    param(
+        [string]$Path,
+        [int]$ItemId
+    )
+
+    $item = Read-IndexItem -Path $Path -ItemId $ItemId
+    Copy-ItemText -Item $item
+}
+
+function Copy-IndexItemPath {
+    param(
+        [string]$Path,
+        [int]$ItemId
+    )
+
+    $item = Read-IndexItem -Path $Path -ItemId $ItemId
+    Set-Clipboard -Value $item.FileAbs
+}
+
 function Run-InteractivePicker {
     param(
         [string]$SearchRoot,
@@ -402,66 +416,79 @@ function Run-InteractivePicker {
 
     try {
         $previewCommand = "pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" -Mode Preview -IndexPath `"$tempIndex`" -Id {1}"
-        $header = 'enter/ctrl-o open  ctrl-y copy snippet  ctrl-p copy path  esc quit'
+        $currentQuery = $InitialQuery
+        $status = ''
 
-        $fzfArgs = @(
-            '--delimiter', "`t"
-            '--with-nth', '2,3,4,5,6'
-            '--preview', $previewCommand
-            '--preview-window', 'right,65%,wrap'
-            '--layout', 'reverse'
-            '--border'
-            '--height', '95%'
-            '--prompt', 'useful-tools> '
-            '--header', $header
-            '--bind', 'ctrl-/:toggle-preview'
-            '--expect', 'enter,ctrl-y,ctrl-o,ctrl-p'
-        )
+        while ($true) {
+            $baseHeader = 'enter/ctrl-o open  ctrl-y/alt-y copy snippet  ctrl-p/alt-p copy path  ctrl-/ preview  esc quit'
+            $header = if ($status) { "$status  |  $baseHeader" } else { $baseHeader }
 
-        if ($InitialQuery) {
-            $fzfArgs += @('--query', $InitialQuery)
-        }
+            $fzfArgs = @(
+                '--delimiter', "`t"
+                '--with-nth', '2,3,4,5,6'
+                '--preview', $previewCommand
+                '--preview-window', 'right,65%,wrap'
+                '--layout', 'reverse'
+                '--border'
+                '--height', '95%'
+                '--prompt', 'useful-tools> '
+                '--header', $header
+                '--print-query'
+                '--bind', 'ctrl-/:toggle-preview'
+                '--expect', 'enter,ctrl-y,alt-y,ctrl-o,ctrl-p,alt-p'
+            )
 
-        $selection = Get-Content -LiteralPath $tempIndex | & fzf.exe @fzfArgs
-        if (-not $selection) {
-            return
-        }
-
-        $trigger = $selection[0]
-        $row = if ($selection.Count -ge 2) { $selection[1] } else { $selection[0] }
-        if (-not $trigger -and $selection.Count -ge 2) {
-            $trigger = 'enter'
-        }
-
-        $parts = $row -split "`t", 8
-        $item = [pscustomobject]@{
-            Id          = [int]$parts[0]
-            Kind        = $parts[1]
-            FileRel     = $parts[2]
-            Line        = [int]$parts[3]
-            Title       = $parts[4]
-            Summary     = $parts[5]
-            EncodedText = $parts[6]
-            FileAbs     = $parts[7]
-        }
-
-        switch ($trigger) {
-            'ctrl-y' {
-                Copy-ItemText -Item $item
-                Write-Host ("Copied snippet from {0}:{1}" -f $item.FileRel, $item.Line)
+            if ($currentQuery) {
+                $fzfArgs += @('--query', $currentQuery)
             }
-            'ctrl-p' {
-                Set-Clipboard -Value $item.FileAbs
-                Write-Host ("Copied path: {0}" -f $item.FileAbs)
+
+            $selection = @(Get-Content -LiteralPath $tempIndex | & fzf.exe @fzfArgs)
+            if (-not $selection -or $selection.Count -lt 3) {
+                return
             }
-            'ctrl-o' {
-                Open-Item -Item $item -Editor $Editor
+
+            $currentQuery = $selection[0]
+            $trigger = $selection[1]
+            $row = $selection[2]
+            if (-not $trigger) {
+                $trigger = 'enter'
             }
-            'enter' {
-                Open-Item -Item $item -Editor $Editor
+
+            $parts = $row -split "`t", 8
+            $item = [pscustomobject]@{
+                Id          = [int]$parts[0]
+                Kind        = $parts[1]
+                FileRel     = $parts[2]
+                Line        = [int]$parts[3]
+                Title       = $parts[4]
+                Summary     = $parts[5]
+                EncodedText = $parts[6]
+                FileAbs     = $parts[7]
             }
-            default {
-                Open-Item -Item $item -Editor $Editor
+
+            switch ($trigger) {
+                { $_ -in @('ctrl-y', 'alt-y') } {
+                    Copy-ItemText -Item $item
+                    $status = "copied code block: $($item.FileRel):$($item.Line)"
+                    continue
+                }
+                { $_ -in @('ctrl-p', 'alt-p') } {
+                    Set-Clipboard -Value $item.FileAbs
+                    $status = "copied path: $($item.FileRel)"
+                    continue
+                }
+                'ctrl-o' {
+                    Open-Item -Item $item -Editor $Editor
+                    return
+                }
+                'enter' {
+                    Open-Item -Item $item -Editor $Editor
+                    return
+                }
+                default {
+                    Open-Item -Item $item -Editor $Editor
+                    return
+                }
             }
         }
     }
@@ -489,6 +516,22 @@ switch ($Mode) {
         }
 
         Show-Preview -Path $IndexPath -ItemId $Id
+        break
+    }
+    'CopyText' {
+        if (-not $IndexPath) {
+            throw 'CopyText mode requires -IndexPath.'
+        }
+
+        Copy-IndexItemText -Path $IndexPath -ItemId $Id
+        break
+    }
+    'CopyPath' {
+        if (-not $IndexPath) {
+            throw 'CopyPath mode requires -IndexPath.'
+        }
+
+        Copy-IndexItemPath -Path $IndexPath -ItemId $Id
         break
     }
     default {

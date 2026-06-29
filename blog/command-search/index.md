@@ -1,7 +1,7 @@
 ---
 title: "Windows 本地命令库快速检索"
 date: 2026-04-25T21:10:00+08:00
-lastmod: 2026-04-25T21:10:00+08:00
+lastmod: 2026-06-24T20:57:27+08:00
 draft: false
 description: "Listary 配合 rg 和 fzf，在 useful-tools 博客目录里直接预览并复制命令片段"
 slug: "windows-command-search"
@@ -28,9 +28,9 @@ scoop install fzf ripgrep
 
 脚本包含两个文件：
 
-- `Find-UsefulToolCommand.ps1`
-- `Run-UsefulToolCommandSearch.cmd`
-- `UsefulToolCommandSearch.root.txt.example`
+- [`Find-UsefulToolCommand.ps1`](https://github.com/huluhuluu/useful-tools/blob/main/blog/command-search/scripts/Find-UsefulToolCommand.ps1)
+- [`Run-UsefulToolCommandSearch.cmd`](https://github.com/huluhuluu/useful-tools/blob/main/blog/command-search/scripts/Run-UsefulToolCommandSearch.cmd)
+- [`UsefulToolCommandSearch.root.txt.example`](https://github.com/huluhuluu/useful-tools/blob/main/blog/command-search/scripts/UsefulToolCommandSearch.root.txt.example)
 
 其中：
 
@@ -45,10 +45,10 @@ scoop install fzf ripgrep
 主脚本会：
 
 1. 遍历目标目录下的 Markdown
-2. 提取标题和 fenced code block
+2. 提取 fenced code block，并用标题作为结果上下文
 3. 如果传入初始查询词，先用 `rg` 缩小候选文件范围
 4. 把候选片段送进 `fzf`
-5. 在右侧预览里展示代码块或标题上下文
+5. 在右侧预览里展示代码块和原文上下文
 6. 根据按键执行复制、打开、复制路径
 
 ### 2.1 默认查询目录
@@ -111,13 +111,20 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\Find-UsefulToolCommand.ps1 -Root
 - `Run-UsefulToolCommandSearch.cmd` 只负责启动 PowerShell
 - `Find-UsefulToolCommand.ps1 git rebase` 才是真正执行搜索
 
-## 2.4 `fzf` 内快捷键
+### 2.4 `fzf` 内快捷键
 
 - `Enter`：打开文件，默认优先用 VS Code 并跳到对应行
 - `Ctrl+O`：同样打开文件
-- `Ctrl+Y`：复制当前代码块或标题内容到剪贴板
-- `Ctrl+P`：复制当前文件路径
+- `Ctrl+Y` / `Alt+Y`：复制左侧当前高亮代码块的 `snippet` 到剪贴板，复制后自动回到 `fzf`
+- `Ctrl+P` / `Alt+P`：复制当前文件路径，复制后自动回到 `fzf`
 - `Ctrl+/`：切换预览窗口
+
+右侧预览分成两部分：
+
+- `snippet`：`Ctrl+Y` / `Alt+Y` 实际会复制的内容
+- `context`：命令所在 Markdown 原文的上下文，用来判断这条命令是不是当前场景
+
+`fzf` 的右侧预览区不是文本编辑器，不能稳定地用鼠标选择其中一部分来复制。这里的复制粒度固定是左侧当前高亮的一个代码块；如果只想截取其中一行，按 `Enter` 或 `Ctrl+O` 打开原文后再复制。
 
 ## 3. Listary
 `Listary` 在这个流程中只负责全局唤起。
@@ -138,6 +145,13 @@ cmdnote
 
 就会直接拉起 `fzf` 让你做全量筛选，如图：
 ![Listary 中输入 cmdnote 后启动搜索](./png/listary-cmdnote-launch.png)
+
+这里不要依赖鼠标框选终端内容来复制。Listary 拉起的是一个临时终端窗口，窗口本身可以正常显示 `fzf`，但预览区里的文字不能当作普通文本选择。复制动作交给脚本快捷键处理：
+
+- `Ctrl+Y` / `Alt+Y`：复制当前 `snippet`
+- `Ctrl+P` / `Alt+P`：复制当前文件路径
+
+复制后会重新回到 `fzf`，并在顶部显示刚才复制的条目。如果当前终端环境里 `Ctrl+Y` 被拦截，就用 `Alt+Y`。
 
 ### 3.2 传 `Listary` 关键字给脚本
 

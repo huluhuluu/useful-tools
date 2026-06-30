@@ -335,14 +335,64 @@ tailscaled \
   --tun=userspace-networking \
   --state=$HOME/tail_exit/tail_exit_1/state \
   --socket=$HOME/tail_exit/tail_exit_1/tailscaled.sock \
-  --socks5-server=172.17.0.1:10551 
-# 注意这里ip 如果需要给docker内使用代理需要写docker的网段ip 常见为172.17.0.1
-# 端口按需配置
+  --socks5-server=0.0.0.0:10551 
+  --outbound-http-proxy-listen=0.0.0.0:10551
 
 # 启动 hostname是显示的实例的名称 exit-node是出口节点的名称
-tailscale --socket=$HOME/tail_exit/tail_exit_1/tailscaled.sock up \
-  --hostname="tail-exit-1" \
-  --exit-node=Node_Name
+tailscale --socket=$HOME/tail_exit/tail_exit_1/tailscaled.sock up
+```
+!!!上面是`linux`的示例，`windows`版的`pwsh`关闭tail服务命令有差异，
+```powershell
+# Stop the normal Tailscale service if it is running.
+Stop-Service Tailscale -ErrorAction SilentlyContinue
+
+Start-Sleep 2
+
+# Kill leftover tailscaled processes to avoid pipe/port conflicts.
+Get-Process tailscaled -ErrorAction SilentlyContinue | Stop-Process -Force
+
+Start-Sleep 2
+
+# Start tailscaled in userspace mode with local SOCKS5 and HTTP proxy.
+Start-Process `
+  -FilePath "C:\Program Files\Tailscale\tailscaled.exe" `
+  -ArgumentList "--tun=userspace-networking --socks5-server=localhost:10551 --outbound-http-proxy-listen=localhost:10551" `
+  -WindowStyle Hidden
+
+Start-Sleep 5
+
+# Bring Tailscale online.
+tailscale up --reset
+```
+可以做成开机自启动命令
+```powershell
+# 管理员 PowerShell 执行下面这整段
+# 需要把上面的命令包装成一个脚本文件，例如 `start-tailscale-proxy.ps1`，内容如下：
+$ScriptPath = "path\to\start-tailscale-proxy.ps1"
+
+$Action = New-ScheduledTaskAction `
+  -Execute "powershell.exe" `
+  -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$ScriptPath`""
+
+$Trigger = New-ScheduledTaskTrigger -AtLogOn
+
+$Principal = New-ScheduledTaskPrincipal `
+  -UserId "$env:USERDOMAIN\$env:USERNAME" `
+  -RunLevel Highest
+
+Register-ScheduledTask `
+  -TaskName "Tailscale Userspace Proxy" `
+  -Action $Action `
+  -Trigger $Trigger `
+  -Principal $Principal `
+  -Force
+
+# 手动运行测试
+Start-ScheduledTask -TaskName "Tailscale Userspace Proxy"
+
+# 查看端口
+netstat -ano | findstr 10551
+# 看到类似输出： TCP    127.0.0.1:10551    0.0.0.0:0    LISTENING
 ```
 
 ### 3.5 其他组网工具

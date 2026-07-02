@@ -247,6 +247,7 @@ codex --full-auto "帮我重构这个函数"
 
 ### 3.2 常用命令
 ```bash
+/init       # 生成一个AGENTS.md文件 记录这个项目大致情况
 /resume     # 恢复上次会话
 /ps         # 查看后台terminal
 /stop       # 停止后台terminal
@@ -343,6 +344,34 @@ git clone https://github.com/huluhuluu/useful-sh.git
 3. 创建最小化 `ZDOTDIR`
 4. 控制 Codex 自己的 `[history].persistence`
 
+## 6. codegraph
+[codegraph](https://github.com/colbymchenry/codegraph) 可以预先给代码构建图谱，更加有利于`agent`执行时理解代码
+### 6.1 安装
+第一步，下载codegraph:
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.ps1 | iex
+```
+
+第二步，接入`agent`使用:
+```bash
+# 会自动查找`agent` 需要通过键盘选择要接入的`agent`
+codegraph install
+```
+
+### 6.2 使用
+常规使用，进入项目进行初始化，这会生成一个`.codegraph`目录存放图谱:
+```bash
+cd your-project
+codegraph init
+```
+代码修改多了以后可以更新图谱
+```bash
+codegraph sync
+```
 
 ---
 

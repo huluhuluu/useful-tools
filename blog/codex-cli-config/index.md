@@ -22,7 +22,7 @@ math: true
 - `windows` 安装:
 ```pwsh
 # 网络不通需要自己使用代理 例如开启clash
-curl -fsSL https://chatgpt.com/codex/install.sh | sh
+powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"
 ```
 - `linux/mac`安装
 ```bash

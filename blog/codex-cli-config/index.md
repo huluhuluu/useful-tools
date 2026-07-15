@@ -1,7 +1,7 @@
 ---
 title: "Codex CLI 第三方 API 配置备忘"
 date: 2026-03-29T11:00:00+08:00
-lastmod: 2026-04-25T14:20:00+08:00
+lastmod: 2026-07-05T00:00:00+08:00
 draft: false
 description: "OpenAI Codex CLI 配置第三方 API 端点记录"
 slug: "codex-cli-config"
@@ -254,7 +254,13 @@ codex --full-auto "帮我重构这个函数"
 /skills     # 管理技能
 /models     # 切换模型 这里可以调整思考模式 例如high extrahigh
 /statusline # 状态底栏的显示 空格选中 enter保存 esc取消
-# `Alt + V` windows 图片粘贴到 Codex CLI
+# `Alt + V` # 把图片粘贴到 Codex CLI
+/memory     # 记忆功能 需要手动打开
+/keymap     # 快捷键映射 可以修改
+/vim        # 当前支持 vim 模式
+/plan       # plan模式 先写一个目标 codex会帮你规划 然后执行
+/goal       # goal模式 先写一个目标 codex会一直帮你执行 直到完成目标
+/side       # side模式 在当前窗口新开一个对话 可以返回ctrl+c返回原来对话
 ```
 
 ## 4. rtk
@@ -344,6 +350,262 @@ git clone https://github.com/huluhuluu/useful-sh.git
 4. 控制 Codex 自己的 `[history].persistence`
 
 
+## 6. sivtr
+
+[sivtr](https://github.com/Ariestar/sivtr) 是一个本地 workspace memory 工具，可以记录终端命令输出、AI coding session、工具日志等内容。它适合和 Codex 一起用：Agent 不需要让你手动粘贴最近的报错，而是先从本地记录里搜索证据。
+
+Agent 工作流建议同时安装两部分：
+
+- `sivtr` CLI/TUI：负责捕获和检索本地记录
+- `sivtr-memory` skill：告诉 Agent 什么时候、怎么使用 `sivtr`（当前版本codex带memory功能通过`/memory`可以使用 可以不适用这个功能）
+
+### 6.1 Windows 安装
+
+Windows 推荐用 Cargo 安装 CLI，然后初始化 PowerShell hook。需要先有 Rust/Cargo 环境，可以从 [Rust 官网](https://www.rust-lang.org/tools/install) 安装。
+
+```powershell
+# 1. 安装 sivtr
+cargo install sivtr
+
+# 2. 验证
+sivtr --version
+
+# 3. 初始化 PowerShell hook
+sivtr init powershell
+
+# 4. 创建默认配置
+sivtr config init
+
+# 5. 安装 Agent memory skill
+npx skills add Ariestar/sivtr --skill sivtr-memory -g
+
+# 6. 诊断
+sivtr doctor
+```
+
+安装 hook 后需要重启 PowerShell。Windows 的全局热键 daemon 是内置支持的，默认热键是 `alt+y`：
+
+```powershell
+# 启动 Windows 全局热键
+sivtr hotkey start
+
+# 指定快捷键
+sivtr hotkey start --chord ctrl+shift+y
+
+# 只打开 Codex picker
+sivtr hotkey start --provider codex
+
+# 查看/停止
+sivtr hotkey status
+sivtr hotkey stop
+```
+
+### 6.2 Linux/macOS 安装
+
+Linux/macOS 可以用 Cargo 安装，也可以用官方脚本下载预编译二进制。
+
+```bash
+# 方式一：Cargo 安装，需要 Rust/Cargo
+cargo install sivtr
+
+# 方式二：预编译二进制，安装到 ~/.local/bin/sivtr 或 $SIVTR_INSTALL_DIR
+curl -fsSL https://raw.githubusercontent.com/Ariestar/sivtr/main/install.sh | sh
+
+# 验证
+sivtr --version
+
+# 初始化 shell hook，按实际 shell 选择一个
+sivtr init bash
+sivtr init zsh
+sivtr init nushell
+
+# 创建默认配置
+sivtr config init
+
+# 安装 Agent memory skill
+npx skills add Ariestar/sivtr --skill sivtr-memory -g
+
+# 诊断
+sivtr doctor
+```
+
+macOS 通常使用 `zsh`，Linux 服务器上按实际 shell 选择 `bash` 或 `zsh`。初始化 hook 后重启终端。
+
+### 6.3 常用命令
+
+```bash
+# 打开交互面板
+sivtr
+
+# 捕获并浏览一段输出
+cargo test 2>&1 | sivtr
+sivtr run cargo test
+
+# 复制最近终端命令块
+sivtr copy
+sivtr copy out --print
+sivtr copy cmd --pick
+
+# 从 Codex session 中复制内容
+sivtr copy codex
+sivtr copy codex out --pick
+
+# 搜索最近的终端失败记录
+sivtr s terminal --status failure --latest 1 --refs
+
+# 搜索 Agent session
+sivtr s agent -m "TODO|failed|decision" --since today -f timeline
+
+# 查看配置和 hook
+sivtr config show
+sivtr init show
+sivtr doctor
+```
+
+## 7. herdr
+
+[herdr](https://herdr.dev/) 是面向 AI coding agents 的终端 multiplexer，可以理解为更适合 Agent 工作流的 `tmux`。它会把不同项目、tab、pane 和 Agent 状态集中在一个终端界面里，适合同时跑多个 Codex/Claude/OpenCode 等 session。
+
+### 7.1 Windows 安装
+
+Herdr 的稳定版目前支持 Linux/macOS，Windows 是 preview beta。Windows 直接使用官方 preview 安装脚本：
+
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://herdr.dev/install.ps1 | iex"
+
+# 验证
+herdr
+```
+
+Windows beta 默认使用 preview channel。后续更新使用：
+
+```powershell
+herdr update
+```
+
+### 7.2 Linux/macOS 安装
+
+Linux/macOS 推荐直接用官方安装脚本，Homebrew、mise、Nix 用户也可以用对应包管理器。
+
+```bash
+# 官方安装脚本
+curl -fsSL https://herdr.dev/install.sh | sh
+
+# Homebrew
+brew install herdr
+
+# mise
+mise use -g herdr
+
+# Nix
+nix run github:ogulcancelik/herdr
+
+# 验证
+herdr
+```
+
+手动下载**也可以**从 [GitHub Releases](https://github.com/ogulcancelik/herdr/releases) 选择对应二进制：
+
+| 系统 | 文件 |
+|------|------|
+| Linux x86_64 | `herdr-linux-x86_64` |
+| Linux aarch64 | `herdr-linux-aarch64` |
+| macOS Intel | `herdr-macos-x86_64` |
+| macOS Apple silicon | `herdr-macos-aarch64` |
+| Windows x86_64 beta | `herdr-windows-x86_64.exe` |
+
+Linux/macOS 手动安装示例：
+
+```bash
+chmod +x herdr-linux-x86_64
+mv herdr-linux-x86_64 ~/.local/bin/herdr
+```
+
+### 7.3 设置默认启动 shell
+
+Herdr 默认读取配置文件：
+
+```text
+~/.config/herdr/config.toml
+```
+
+可以先导出完整默认配置：
+
+```bash
+mkdir -p ~/.config/herdr
+herdr --default-config > ~/.config/herdr/config.toml
+```
+
+然后在配置中设置新建交互 pane 使用的默认 shell：
+
+```toml
+[terminal]
+default_shell = "zsh"
+shell_mode = "auto"
+```
+
+`default_shell` 是可执行文件名或路径，不是一整段 shell 命令。常见写法(快捷键绑定也可以手动在这个`config`修改)：
+
+```toml
+[terminal]
+default_shell = "bash"
+```
+
+```toml
+[terminal]
+default_shell = "zsh"
+```
+
+```toml
+[terminal]
+default_shell = "pwsh"
+```
+
+如果为空，Herdr 会按 `$SHELL`，再到 `/bin/sh` 的顺序回退。`shell_mode = "auto"` 会在 macOS 上使用 login shell，便于加载 Homebrew 等 PATH 初始化；其它平台保持非 login shell 行为。修改配置后重载：
+
+```bash
+herdr server reload-config
+```
+
+已有 pane 不会自动换 shell，需要新建 pane 或重启 session。
+
+### 7.4 常用方法
+
+```bash
+# 启动或重新连接默认 session
+herdr
+
+# 远程连接，在本地终端作为远程 Herdr server 的 client
+herdr --remote workbox
+herdr --remote ssh://you@yourserver:2222
+
+# 更新官方脚本安装的版本
+herdr update
+
+# 停止默认 session
+herdr server stop
+
+# 查看默认配置
+herdr --default-config
+```
+
+默认快捷键类似 `tmux` 的 prefix 模型，`ctrl+b` 进入 prefix mode：
+
+| 操作 | 快捷键 |
+|------|--------|
+| 新建 workspace | `ctrl+b` 后 `shift+n` |
+| 新建 tab | `ctrl+b` 后 `c` |
+| 左右/上下分屏 | `ctrl+b` 后 `v` / `minus` |
+| workspace 选择 | `ctrl+b` 后 `w` |
+| detach | `ctrl+b` 后 `q` |
+| 查看全部快捷键 | `ctrl+b` 后 `?` |
+
+在 pane 里直接运行 `codex`，Herdr 会自动识别 Agent 状态：
+
+```bash
+codex
+```
+
 ---
 
 ## 参考链接
@@ -355,3 +617,7 @@ git clone https://github.com/huluhuluu/useful-sh.git
 - [CC-Switch-cli](https://github.com/SaladDay/cc-switch-cli)
 - [rtk GitHub](https://github.com/rtk-ai/rtk)
 - [rtk](https://www.rtk-ai.app/)
+- [sivtr GitHub](https://github.com/Ariestar/sivtr)
+- [sivtr 中文文档](https://sivtr.pages.dev/zh-cn/)
+- [Herdr](https://herdr.dev/)
+- [Herdr GitHub](https://github.com/ogulcancelik/herdr)

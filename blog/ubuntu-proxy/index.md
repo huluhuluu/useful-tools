@@ -341,7 +341,7 @@ tailscaled \
 # 启动 hostname是显示的实例的名称 exit-node是出口节点的名称
 tailscale --socket=$HOME/tail_exit/tail_exit_1/tailscaled.sock up
 ```
-!!!上面是`linux`的示例，`windows`版的`pwsh`关闭tail服务命令有差异，
+!! 上面是`linux`的示例，`windows`版的`pwsh`关闭tail服务命令有差异，
 ```powershell
 # Stop the normal Tailscale service if it is running.
 Stop-Service Tailscale -ErrorAction SilentlyContinue

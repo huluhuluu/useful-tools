@@ -1,7 +1,7 @@
 ---
 title: tools
 date: 2026-01-30T08:00:00+08:00
-lastmod: 2026-05-14T22:20:00+08:00
+lastmod: 2026-07-08T20:00:00+08:00
 draft: false
 description: "开发过程中用到的一些实用小工具配置记录"
 slug: "useful-tools"
@@ -61,6 +61,7 @@ math: true
 | [SSH 命令备忘](/p/ssh-guide/) | SSH 密钥管理、配置文件、端口转发等 | ✅ 完成 |
 | [ADB 使用备忘](/p/adb-guide/) | Android Debug Bridge 常用命令和使用技巧 | ✅ 完成 |
 | [Vim 常用命令备忘](/p/vim-commands/) | Vim 日常开发常用命令速查 | ✅ 完成 |
+| [Neovim + LazyVim 配置备忘](/p/nvim-lazyvim/) | Windows PowerShell 7 和 Linux 下的 Neovim + LazyVim 配置记录 | ✅ 完成 |
 | [Wireshark 使用备忘](/p/wireshark-guide/) | Wireshark 网络抓包工具常用操作记录 | ✅ 完成 |
 | [FZF 使用备忘](/p/fzf/) | 命令行模糊搜索工具，提升终端效率 | ✅ 完成 |
 | [Zoxide 使用备忘](/p/zoxide/) | 更智能的 cd 命令，自动记忆常用目录 | ✅ 完成 |

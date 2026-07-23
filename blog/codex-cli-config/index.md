@@ -61,6 +61,24 @@ curl -fsSL https://chatgpt.com/codex/install.sh | sh
     codex --version
     # codex-cli 0.117.0 # 输出版本 安装成功
     ```
+  - 宿主机的非`root`用户安装：
+    ```bash
+    # 1. 设置 npm 的用户级全局目录
+    mkdir -p "$HOME/.local"
+    npm config set prefix "$HOME/.local"
+  
+    # 2. 添加索引路径，如果使用 Bash 添加到 ~/.bashrc
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+    source ~/.zshrc
+  
+    # 3. 安装 Codex
+    npm install -g @openai/codex@latest
+  
+    # 4. 验证
+    command -v codex
+    codex --version
+    ```
+
 - `mac`安装
   ```bash
   # Install using Homebrew

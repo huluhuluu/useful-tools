@@ -78,6 +78,7 @@ exec zsh -l
 
 echo 'source /usr/local/Ascend/cann-9.0.1/set_env.sh' >> ~/.zshrc # 添加 CANN 环境变量配置
 echo 'source /usr/local/Ascend/nnal/atb/set_env.sh' >> ~/.zshrc # 添加 ATB 环境变量配置
+sudo dnf install jemalloc -y
 echo 'export LD_PRELOAD=/usr/lib64/libjemalloc.so.2:$LD_PRELOAD' >> ~/.zshrc # 添加 jemalloc 预加载配置; 不同系统下位置会有不同
 source ~/.zshrc # 使配置生效
 ```
@@ -102,11 +103,9 @@ conda init zsh
 # conda config --add channels https://mirrors.huaweicloud.com/anaconda/pkgs/free/
 # conda config --add channels https://mirrors.huaweicloud.com/anaconda/cloud/conda-forge/
 # conda config --add channels https://mirrors.huaweicloud.com/anaconda/cloud/bioconda/
-# 配置ustc源
-# conda config --add channels https://mirrors.ustc.edu.cn/anaconda/pkgs/main/
-# conda config --add channels https://mirrors.ustc.edu.cn/anaconda/pkgs/free/
-# conda config --add channels https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge/
-# conda config --add channels https://mirrors.ustc.edu.cn/anaconda/cloud/bioconda/
+# 配置清华源
+# conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/ 
+# conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/  
 
 # 安装nputop
 # 测试华为源不如ustc快 # https://pypi.tuna.tsinghua.edu.cn/simple/
@@ -198,33 +197,25 @@ source /usr/local/Ascend/nnal/atb/set_env.sh # ATB 环境变量配置
 # 虚拟环境
 conda create -n my-vllm python=3.12 pip -y
 conda activate my-vllm
-
-# 2. 安装torchnpu 根据上方参考链接 指引找指定 py+系统+cann驱动 对应的版本
-wget https://download.pytorch.org/whl/cpu/torch-2.10.0%2Bcpu-cp312-cp312-manylinux_2_28_aarch64.whl
-uv pip install torch-2.10.0+cpu-cp312-cp312-manylinux_2_28_aarch64.whl
-wget https://gitcode.com/Ascend/pytorch/releases/download/v26.0.0-pytorch2.10.0/torch_npu-2.10.0-cp312-cp312-manylinux_2_28_aarch64.whl
-uv pip install torch_npu-2.10.0-cp312-cp312-manylinux_2_28_aarch64.whl
-uv pip install protobuf
+pip install uv -i https://pypi.mirrors.ustc.edu.cn/simple/
 
 # 2. 源码安装vllm
 git clone -b v0.23.0 https://github.com/vllm-project/vllm.git
 cd vllm
-VLLM_TARGET_DEVICE=empty uv pip install -e .
+VLLM_TARGET_DEVICE=empty uv pip install -e . --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 cd ..
 
+# 3. 源码安装vllm-ascend
 git clone -b v0.23.0rc1  https://github.com/vllm-project/vllm-ascend.git
 cd vllm-ascend
-SOC_VERSION=ascend910b1 COMPILE_CUSTOM_KERNELS=1 MAX_JOBS=16 python -m pip install -e . --no-build-isolation 
-uv pip install setuptools_scm
-uv pip install -e . \
-  --no-build-isolation \
+git submodule update --init --recursive
+# !!! 源码安装 主要问题来源源码安装的vllm没有版本标记
+export VLLM_VERSION=0.23.0
+uv pip install -e .  \
   --index-url https://pypi.tuna.tsinghua.edu.cn/simple \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  --extra-index-url https://pypi.org/simple \
-  --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
-  --extra-index-url https://download.pytorch.org/whl/cpu/
-# 建议非隔离安装
+  --index-strategy unsafe-best-match
 cd ..
 ```
 

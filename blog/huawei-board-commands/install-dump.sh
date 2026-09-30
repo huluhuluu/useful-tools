@@ -31,6 +31,7 @@ echo "[1/8] 检查并安装基础依赖包..."
 sudo dnf install zsh tmux git wget curl -y
 sudo dnf groupinstall "Development Tools" -y
 sudo dnf install ncurses-devel autoconf automake libtool -y
+sudo dnf install jemalloc -y 
 
 # ---------------------------------------------------------
 # 2. 配置 Zsh 和 Oh-My-Zsh

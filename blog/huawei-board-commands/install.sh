@@ -1,7 +1,7 @@
 #!/bin/bash
 # =========================================================
 # 欧拉系统 (openEuler) 环境初始化脚本
-# 包含: Zsh, Oh-My-Zsh, Tmux, Miniforge, htop, zoxide, fzf
+# 包含: Zsh, Oh-My-Zsh, Tmux, Miniforge, htop, zoxide, fzf, Ascend CANN/ATB
 # =========================================================
 
 set -e # 遇到错误立即退出
@@ -13,7 +13,7 @@ echo "========================================="
 # ---------------------------------------------------------
 # 1. 基础工具安装 (Zsh, Tmux, 开发工具)
 # ---------------------------------------------------------
-echo "[1/6] 安装基础依赖包..."
+echo "[1/7] 安装基础依赖包..."
 sudo dnf install zsh tmux git wget curl -y
 sudo dnf groupinstall "Development Tools" -y
 sudo dnf install ncurses-devel autoconf automake libtool -y
@@ -21,7 +21,7 @@ sudo dnf install ncurses-devel autoconf automake libtool -y
 # ---------------------------------------------------------
 # 2. 配置 Zsh 和 Oh-My-Zsh
 # ---------------------------------------------------------
-echo "[2/6] 配置 Zsh 环境..."
+echo "[2/7] 配置 Zsh 环境..."
 
 # 克隆 Oh-My-Zsh (使用 Gitee 镜像加速)
 if [ ! -d ~/.oh-my-zsh ]; then
@@ -56,7 +56,7 @@ fi
 # ---------------------------------------------------------
 # 3. 安装增强工具 (zoxide, fzf)
 # ---------------------------------------------------------
-echo "[3/6] 安装 zoxide 和 fzf..."
+echo "[3/7] 安装 zoxide 和 fzf..."
 
 # 安装 zoxide (智能 cd)
 curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
@@ -72,9 +72,26 @@ if [ ! -d ~/.fzf ]; then
 fi
 
 # ---------------------------------------------------------
-# 4. 安装 Miniforge (Conda)
+# 4. 配置 Ascend CANN / ATB 环境变量
 # ---------------------------------------------------------
-echo "[4/6] 安装 Miniforge..."
+echo "[4/7] 配置 Ascend CANN / ATB 环境变量..."
+
+# CANN 环境变量
+CANN_INIT_LINE='source /usr/local/Ascend/cann-9.0.1/set_env.sh'
+grep -qF "$CANN_INIT_LINE" ~/.zshrc || echo "$CANN_INIT_LINE" >> ~/.zshrc
+
+# ATB 环境变量
+ATB_INIT_LINE='source /usr/local/Ascend/nnal/atb/set_env.sh'
+grep -qF "$ATB_INIT_LINE" ~/.zshrc || echo "$ATB_INIT_LINE" >> ~/.zshrc
+
+# jemalloc 预加载 (不同系统下位置会有不同)
+JEMALLOC_LINE='export LD_PRELOAD=/usr/lib64/libjemalloc.so.2:$LD_PRELOAD'
+grep -qF "$JEMALLOC_LINE" ~/.zshrc || echo "$JEMALLOC_LINE" >> ~/.zshrc
+
+# ---------------------------------------------------------
+# 5. 安装 Miniforge (Conda)
+# ---------------------------------------------------------
+echo "[5/7] 安装 Miniforge..."
 
 # 检测架构并下载对应版本
 ARCH=$(uname -m)
@@ -103,9 +120,9 @@ chmod u+x ~/miniforge3/etc/profile.d/conda.sh
 ~/miniforge3/bin/conda init zsh
 
 # ---------------------------------------------------------
-# 5. 配置 Python 源与安装 nputop
+# 6. 配置 Python 源与安装 nputop
 # ---------------------------------------------------------
-echo "[5/6] 配置 Python 源并安装 ascend-nputop..."
+echo "[6/7] 配置 Python 源并安装 ascend-nputop..."
 
 # 加载 conda 环境以便使用 pip/uv
 source ~/miniforge3/etc/profile.d/conda.sh
@@ -117,9 +134,9 @@ pip install uv -i https://pypi.mirrors.ustc.edu.cn/simple/
 uv tool install ascend-nputop -i https://pypi.mirrors.ustc.edu.cn/simple/
 
 # ---------------------------------------------------------
-# 6. 源码编译安装 htop
+# 7. 源码编译安装 htop
 # ---------------------------------------------------------
-echo "[6/6] 源码编译安装 htop..."
+echo "[7/7] 源码编译安装 htop..."
 
 mkdir -p ~/code && cd ~/code
 

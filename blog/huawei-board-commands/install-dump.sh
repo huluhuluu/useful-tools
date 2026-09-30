@@ -1,7 +1,8 @@
 #!/bin/bash
 # =========================================================
-# 欧拉系统 (openEuler) 环境初始化脚本 v2.2
+# 欧拉系统 (openEuler) 环境初始化脚本 v2.3
 # 修复: Conda 安装稳定性、Zoxide 环境变量注入、镜像加速
+# 新增: Ascend CANN / ATB / jemalloc 环境变量配置
 # =========================================================
 
 set -e # 遇到严重错误立即退出
@@ -19,7 +20,7 @@ echo "========================================="
 # ---------------------------------------------------------
 # 1. 基础工具安装
 # ---------------------------------------------------------
-echo "[1/7] 检查并安装基础依赖包..."
+echo "[1/8] 检查并安装基础依赖包..."
 sudo dnf install zsh tmux git wget curl -y
 sudo dnf groupinstall "Development Tools" -y
 sudo dnf install ncurses-devel autoconf automake libtool -y
@@ -27,7 +28,7 @@ sudo dnf install ncurses-devel autoconf automake libtool -y
 # ---------------------------------------------------------
 # 2. 配置 Zsh 和 Oh-My-Zsh
 # ---------------------------------------------------------
-echo "[2/7] 配置 Zsh 环境..."
+echo "[2/8] 配置 Zsh 环境..."
 
 if [ ! -d ~/.oh-my-zsh ]; then
     echo "  -> 克隆 Oh-My-Zsh..."
@@ -61,7 +62,7 @@ fi
 # ---------------------------------------------------------
 # 3. 安装增强工具 (zoxide, fzf)
 # ---------------------------------------------------------
-echo "[3/7] 检查并安装 zoxide 和 fzf..."
+echo "[3/8] 检查并安装 zoxide 和 fzf..."
 
 # 3.1 安装 zoxide
 if ! command -v zoxide &> /dev/null; then
@@ -92,9 +93,26 @@ else
 fi
 
 # ---------------------------------------------------------
-# 4. 安装 Miniforge (Conda) - 修复版
+# 4. 配置 Ascend CANN / ATB 环境变量
 # ---------------------------------------------------------
-echo "[4/7] 检查并安装 Miniforge..."
+echo "[4/8] 配置 Ascend CANN / ATB 环境变量..."
+
+# CANN 环境变量
+CANN_INIT_LINE='source /usr/local/Ascend/cann-9.0.1/set_env.sh'
+grep -qF "$CANN_INIT_LINE" ~/.zshrc || echo "$CANN_INIT_LINE" >> ~/.zshrc
+
+# ATB 环境变量
+ATB_INIT_LINE='source /usr/local/Ascend/nnal/atb/set_env.sh'
+grep -qF "$ATB_INIT_LINE" ~/.zshrc || echo "$ATB_INIT_LINE" >> ~/.zshrc
+
+# jemalloc 预加载 (不同系统下位置会有不同)
+JEMALLOC_LINE='export LD_PRELOAD=/usr/lib64/libjemalloc.so.2:$LD_PRELOAD'
+grep -qF "$JEMALLOC_LINE" ~/.zshrc || echo "$JEMALLOC_LINE" >> ~/.zshrc
+
+# ---------------------------------------------------------
+# 5. 安装 Miniforge (Conda) - 修复版
+# ---------------------------------------------------------
+echo "[5/8] 检查并安装 Miniforge..."
 
 CONDA_INIT_LINE="source $CONDA_PATH/etc/profile.d/conda.sh"
 
@@ -136,9 +154,9 @@ else
 fi
 
 # ---------------------------------------------------------
-# 5. 配置 Python 源与安装 nputop
+# 6. 配置 Python 源与安装 nputop
 # ---------------------------------------------------------
-echo "[5/7] 配置 Python 环境并安装 ascend-nputop..."
+echo "[6/8] 配置 Python 环境并安装 ascend-nputop..."
 
 # 【关键】加载 Conda 环境
 if [ -f "$CONDA_PATH/etc/profile.d/conda.sh" ]; then
@@ -166,9 +184,9 @@ else
 fi
 
 # ---------------------------------------------------------
-# 6. 源码编译安装 htop
+# 7. 源码编译安装 htop
 # ---------------------------------------------------------
-echo "[6/7] 检查并编译 htop ${HTOP_VERSION}..."
+echo "[7/8] 检查并编译 htop ${HTOP_VERSION}..."
 
 mkdir -p ~/code && cd ~/code
 
@@ -200,7 +218,7 @@ else
 fi
 
 # ---------------------------------------------------------
-# 7. 完成提示
+# 8. 完成提示
 # ---------------------------------------------------------
 echo ""
 echo "========================================="

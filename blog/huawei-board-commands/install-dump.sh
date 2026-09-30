@@ -1,20 +1,27 @@
 #!/bin/bash
 # =========================================================
-# 欧拉系统 (openEuler) 环境初始化脚本 v2.3
+# 欧拉系统 (openEuler) 环境初始化脚本 v2.4
 # 修复: Conda 安装稳定性、Zoxide 环境变量注入、镜像加速
 # 新增: Ascend CANN / ATB / jemalloc 环境变量配置
+# v2.4: 修正代理前缀误用、htop 包名版本化、CANN 路径自动探测、
+#       LD_PRELOAD 幂等且无尾部冒号、uv 安装后 PATH 生效
 # =========================================================
 
 set -e # 遇到严重错误立即退出
+set -u # 引用未定义变量时报错
 
 # ------------------- 配置区域 -------------------
-GH_PROXY="https://ghfast.top" 
+GH_PROXY="https://ghfast.top"          # 仅用于 github.com / raw.githubusercontent.com
 HTOP_VERSION="3.5.0"
 CONDA_PATH="$HOME/miniforge3"
+
+ASCEND_ROOT="/usr/local/Ascend"
+CANN_FALLBACK_VERSION="9.0.1"          # 探测不到时使用的默认版本
+JEMALLOC_SO="/usr/lib64/libjemalloc.so.2"
 # ----------------------------------------------
 
 echo "========================================="
-echo "开始环境初始化 (v2.2)..."
+echo "开始环境初始化 (v2.4)..."
 echo "========================================="
 
 # ---------------------------------------------------------
@@ -30,28 +37,40 @@ sudo dnf install ncurses-devel autoconf automake libtool -y
 # ---------------------------------------------------------
 echo "[2/8] 配置 Zsh 环境..."
 
+# 注意: gitee.com 是国内镜像，不能加 GitHub 加速前缀（加了会 403）
 if [ ! -d ~/.oh-my-zsh ]; then
     echo "  -> 克隆 Oh-My-Zsh..."
-    git clone ${GH_PROXY}/https://gitee.com/mirror-hub/ohmyzsh.git ~/.oh-my-zsh
+    git clone https://gitee.com/mirror-hub/ohmyzsh.git ~/.oh-my-zsh
 else
     echo "  -> Oh-My-Zsh 已存在，跳过。"
 fi
 
+# 模板缺失时退化为空文件，避免 cp 失败触发 set -e 终止脚本
 if [ ! -f ~/.zshrc ]; then
-    cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+    if [ -f ~/.oh-my-zsh/templates/zshrc.zsh-template ]; then
+        cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+    else
+        echo "  -> 警告: 未找到 zshrc 模板，创建空 ~/.zshrc"
+        touch ~/.zshrc
+    fi
 fi
 
 PLUGIN_DIR=~/.oh-my-zsh/custom/plugins
 if [ ! -d "$PLUGIN_DIR/zsh-syntax-highlighting" ]; then
-    git clone ${GH_PROXY}/https://gitee.com/mirror-hub/zsh-syntax-highlighting.git "$PLUGIN_DIR/zsh-syntax-highlighting"
+    git clone https://gitee.com/mirror-hub/zsh-syntax-highlighting.git "$PLUGIN_DIR/zsh-syntax-highlighting"
 fi
 if [ ! -d "$PLUGIN_DIR/zsh-autosuggestions" ]; then
-    git clone ${GH_PROXY}/https://gitee.com/mirror-hub/zsh-autosuggestions.git "$PLUGIN_DIR/zsh-autosuggestions"
+    git clone https://gitee.com/mirror-hub/zsh-autosuggestions.git "$PLUGIN_DIR/zsh-autosuggestions"
 fi
 
-if ! grep -q "zsh-syntax-highlighting" ~/.zshrc; then
-    sed -i '/^plugins=/c\plugins=(git sudo z zsh-syntax-highlighting zsh-autosuggestions fzf)' ~/.zshrc
+# 插件行: 不存在则追加，存在但内容不符则替换（可修复被手改过的行）
+PLUGINS_LINE='plugins=(git sudo z zsh-syntax-highlighting zsh-autosuggestions fzf)'
+if grep -q '^plugins=' ~/.zshrc; then
+    grep -qF "$PLUGINS_LINE" ~/.zshrc || sed -i "/^plugins=/c\\$PLUGINS_LINE" ~/.zshrc
+else
+    echo "$PLUGINS_LINE" >> ~/.zshrc
 fi
+
 grep -q "autoload -U compinit" ~/.zshrc || echo "autoload -U compinit && compinit" >> ~/.zshrc
 
 touch ~/.bash_profile
@@ -82,7 +101,6 @@ grep -qF "$ZOXIDE_INIT" ~/.zshrc || echo "$ZOXIDE_INIT" >> ~/.zshrc
 # 添加 local/bin 到 PATH (修复点：使用 -F 固定字符串匹配，避免正则干扰)
 grep -qF "$LOCAL_BIN_EXPORT" ~/.zshrc || echo "$LOCAL_BIN_EXPORT" >> ~/.zshrc
 
-
 # 3.3 安装 fzf
 if [ ! -d ~/.fzf ]; then
     echo "  -> 克隆并安装 fzf..."
@@ -97,17 +115,49 @@ fi
 # ---------------------------------------------------------
 echo "[4/8] 配置 Ascend CANN / ATB 环境变量..."
 
-# CANN 环境变量
-CANN_INIT_LINE='source /usr/local/Ascend/cann-9.0.1/set_env.sh'
-grep -qF "$CANN_INIT_LINE" ~/.zshrc || echo "$CANN_INIT_LINE" >> ~/.zshrc
+# 4.1 探测 CANN set_env.sh (优先默认版本，否则取第一个 cann-*)
+CANN_SET_ENV=""
+if [ -f "$ASCEND_ROOT/cann-${CANN_FALLBACK_VERSION}/set_env.sh" ]; then
+    CANN_SET_ENV="$ASCEND_ROOT/cann-${CANN_FALLBACK_VERSION}/set_env.sh"
+else
+    for _cand in "$ASCEND_ROOT"/cann-*/set_env.sh; do
+        if [ -f "$_cand" ]; then
+            CANN_SET_ENV="$_cand"
+            break
+        fi
+    done
+fi
 
-# ATB 环境变量
-ATB_INIT_LINE='source /usr/local/Ascend/nnal/atb/set_env.sh'
-grep -qF "$ATB_INIT_LINE" ~/.zshrc || echo "$ATB_INIT_LINE" >> ~/.zshrc
+if [ -n "$CANN_SET_ENV" ]; then
+    CANN_INIT_LINE="source $CANN_SET_ENV"
+    grep -qF "$CANN_INIT_LINE" ~/.zshrc || echo "$CANN_INIT_LINE" >> ~/.zshrc
+    echo "  -> CANN: $CANN_SET_ENV"
+else
+    echo "  -> 警告: 未找到 $ASCEND_ROOT/cann-*/set_env.sh，跳过 CANN 配置。"
+fi
 
-# jemalloc 预加载 (不同系统下位置会有不同)
-JEMALLOC_LINE='export LD_PRELOAD=/usr/lib64/libjemalloc.so.2:$LD_PRELOAD'
-grep -qF "$JEMALLOC_LINE" ~/.zshrc || echo "$JEMALLOC_LINE" >> ~/.zshrc
+# 4.2 ATB 环境变量
+ATB_SET_ENV="$ASCEND_ROOT/nnal/atb/set_env.sh"
+if [ -f "$ATB_SET_ENV" ]; then
+    ATB_INIT_LINE="source $ATB_SET_ENV"
+    grep -qF "$ATB_INIT_LINE" ~/.zshrc || echo "$ATB_INIT_LINE" >> ~/.zshrc
+    echo "  -> ATB: $ATB_SET_ENV"
+else
+    echo "  -> 警告: 未找到 $ATB_SET_ENV，跳过 ATB 配置。"
+fi
+
+# 4.3 jemalloc 预加载
+# 旧写法 'export LD_PRELOAD=...:$LD_PRELOAD' 在 LD_PRELOAD 为空时会留下尾部冒号，
+# 等于把当前目录加入动态库搜索路径；这里改为幂等且无尾部冒号的写法。
+JEMALLOC_LINE="case \":\${LD_PRELOAD:-}:\" in *\":$JEMALLOC_SO:\"*) ;; *) export LD_PRELOAD=\"$JEMALLOC_SO\${LD_PRELOAD:+:\$LD_PRELOAD}\";; esac"
+# 清理历史遗留的旧写法
+sed -i '\|^export LD_PRELOAD=.*libjemalloc|d' ~/.zshrc
+if [ -f "$JEMALLOC_SO" ]; then
+    grep -qF "$JEMALLOC_LINE" ~/.zshrc || echo "$JEMALLOC_LINE" >> ~/.zshrc
+    echo "  -> jemalloc: $JEMALLOC_SO"
+else
+    echo "  -> 警告: 未找到 $JEMALLOC_SO，跳过 jemalloc 预加载。"
+fi
 
 # ---------------------------------------------------------
 # 5. 安装 Miniforge (Conda) - 修复版
@@ -128,10 +178,11 @@ if [ -d "$CONDA_PATH" ]; then
 else
     echo "  -> 开始下载并安装 Miniforge..."
     ARCH=$(uname -m)
+    # 注意: mirror.nju.edu.cn 已是国内镜像，不能加 GitHub 加速前缀（加了会 403）
     if [ "$ARCH" = "aarch64" ]; then
-        MINIFORGE_URL="${GH_PROXY}/https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-aarch64.sh"
+        MINIFORGE_URL="https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-aarch64.sh"
     elif [ "$ARCH" = "x86_64" ]; then
-        MINIFORGE_URL="${GH_PROXY}/https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-x86_64.sh"
+        MINIFORGE_URL="https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-x86_64.sh"
     else
         echo "错误: 不支持的架构 $ARCH"
         exit 1
@@ -139,14 +190,14 @@ else
 
     INSTALLER_FILE="/tmp/Miniforge3-Installer.sh"
     wget "$MINIFORGE_URL" -O "$INSTALLER_FILE"
-    
+
     # 静默安装
     bash "$INSTALLER_FILE" -b -p "$CONDA_PATH"
     rm -f "$INSTALLER_FILE"
-    
+
     # 配置环境变量
     echo "$CONDA_INIT_LINE" >> ~/.zshrc
-    
+
     # 赋予权限并初始化
     chmod u+x "$CONDA_PATH/etc/profile.d/conda.sh"
     "$CONDA_PATH/bin/conda" init zsh
@@ -166,6 +217,10 @@ if [ -f "$CONDA_PATH/etc/profile.d/conda.sh" ]; then
 else
     echo "警告: 找不到 Conda 初始化脚本，尝试直接使用系统 pip..."
 fi
+
+# uv / uv tool 的可执行文件位于 ~/.local/bin，必须让当前 shell 立刻可见，
+# 否则下面的 command -v 检测不到，重复执行时会反复安装。
+export PATH="$HOME/.local/bin:$PATH"
 
 # 检查并安装 uv
 if ! command -v uv &> /dev/null; then
@@ -191,14 +246,15 @@ echo "[7/8] 检查并编译 htop ${HTOP_VERSION}..."
 mkdir -p ~/code && cd ~/code
 
 HTOP_DIR="htop-${HTOP_VERSION}"
-HTOP_TAR="htop-latest.tar.gz"
+# 包名带版本号，避免残留旧版本的 htop-latest.tar.gz 导致解压目录与 HTOP_DIR 不匹配
+HTOP_TAR="htop-${HTOP_VERSION}.tar.gz"
 
 if command -v htop &> /dev/null; then
     INSTALLED_VER=$(htop --version | head -n1 | awk '{print $2}')
     echo "  -> htop 已安装 (版本: $INSTALLED_VER)，跳过编译。"
 else
     echo "  -> htop 未检测到，开始编译..."
-    
+
     if [ ! -f "$HTOP_TAR" ]; then
         echo "  -> 下载源码包..."
         wget "${GH_PROXY}/https://github.com/htop-dev/htop/archive/refs/tags/${HTOP_VERSION}.tar.gz" -O "$HTOP_TAR"
@@ -209,12 +265,16 @@ else
         tar xf "$HTOP_TAR"
     fi
 
-    cd "$HTOP_DIR"
-    ./autogen.sh
-    ./configure
-    make -j$(nproc)
-    sudo make install
-    cd ~/code
+    if [ -d "$HTOP_DIR" ]; then
+        cd "$HTOP_DIR"
+        ./autogen.sh
+        ./configure
+        make -j"$(nproc)"
+        sudo make install
+        cd ~/code
+    else
+        echo "错误: 解压后未找到目录 $HTOP_DIR，跳过 htop 编译。"
+    fi
 fi
 
 # ---------------------------------------------------------

@@ -1,7 +1,7 @@
 ---
 title: "Ubuntu Proxy Configuration"
 date: 2026-04-10T01:30:00+08:00
-lastmod: 2026-05-18T13:10:00+08:00
+lastmod: 2026-08-04T00:00:00+08:00
 draft: false
 description: "内网服务器代理配置方案，包括 Clash 内核、SSH 反向端口转发、Tailscale 等方法"
 slug: "ubuntu-proxy"
@@ -326,73 +326,103 @@ Other app
   -> Internet
 ```
 
-#### 3.4.3 使用出口节点做ip转发
-参考[官方教程](https://tailscale.com/docs/concepts/userspace-networking)，可以使用同一组网内的其它机器作为出口节点，做 ip 转发。
+#### 3.4.3 SOCKS5
+
+##### 3.4.3.1 ubuntu
+Ubuntu 正常安装的 `tailscaled` 已负责 TUN 和 tailnet 组网，直接给同一个 systemd 服务追加 `--socks5-server` 即可。先查看原始启动参数：
+
 ```bash
-# 存放有关文件 避免与主tail实例冲突
-mkdir -p ~/tail_exit/tail_exit_1
-tailscaled \
-  --tun=userspace-networking \
-  --state=$HOME/tail_exit/tail_exit_1/state \
-  --socket=$HOME/tail_exit/tail_exit_1/tailscaled.sock \
-  --socks5-server=0.0.0.0:10551 
-  --outbound-http-proxy-listen=0.0.0.0:10551
-
-# 启动 hostname是显示的实例的名称 exit-node是出口节点的名称
-tailscale --socket=$HOME/tail_exit/tail_exit_1/tailscaled.sock up
+systemctl cat tailscaled
 ```
-!! 上面是`linux`的示例，`windows`版的`pwsh`关闭tail服务命令有差异，
+
+编辑服务：
+
+```bash
+sudo systemctl edit tailscaled
+```
+
+在编辑器中清空原来的 `ExecStart`，然后复制 `systemctl cat tailscaled` 中原有的参数，只追加 `--socks5-server`。常见配置如下：
+
+```ini
+[Service]
+ExecStart=
+ExecStart=/usr/sbin/tailscaled \
+  --state=/var/lib/tailscale/tailscaled.state \
+  --socket=/run/tailscale/tailscaled.sock \
+  --socks5-server=0.0.0.0:10551
+```
+
+应用并验证：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart tailscaled
+tailscale up
+ss -lntp | grep ':10551'
+```
+
+其他 tailnet 设备使用 `socks5://<Ubuntu 的 Tailscale IP>:10551`。`0.0.0.0` 监听时必须用防火墙限制为 `tailscale0` 或 `100.64.0.0/10`，否则 SOCKS5 会暴露到局域网。
+
+移除 SOCKS5 时，只需再次编辑该 override，删除 `--socks5-server=...`，然后执行：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart tailscaled
+```
+##### 3.4.3.2 Windows
+Windows 建议保留官方 `Tailscale` 服务负责 TUN 和 SSH，再启动一个独立 userspace 实例提供 SOCKS5。(主要是单实例启动会很有问题) 管理员 PowerShell 执行：
+
 ```powershell
-# Stop the normal Tailscale service if it is running.
-Stop-Service Tailscale -ErrorAction SilentlyContinue
+$TaskName = "Tailscale SOCKS5 Proxy"
+$RuleName = "Tailscale SOCKS5 10551"
+$Daemon = "C:\Program Files\Tailscale\tailscaled.exe"
+$Tailscale = "C:\Program Files\Tailscale\tailscale.exe"
+$ProxyDir = "C:\ProgramData\TailscaleProxy"
+$ProxySocket = "\\.\pipe\ProtectedPrefix\Administrators\Tailscale\proxy"
 
-Start-Sleep 2
+# 保持正常 Tailscale 实例在线
+Set-Service Tailscale -StartupType Automatic
+Start-Service Tailscale -ErrorAction SilentlyContinue
+$TailIP = (& $Tailscale ip -4 | Select-Object -First 1).Trim()
+New-Item -ItemType Directory -Path $ProxyDir -Force | Out-Null
 
-# Kill leftover tailscaled processes to avoid pipe/port conflicts.
-Get-Process tailscaled -ErrorAction SilentlyContinue | Stop-Process -Force
+$Action = New-ScheduledTaskAction -Execute $Daemon -Argument `
+  "--tun=userspace-networking --port=0 --state=$ProxyDir\state.conf --socket=$ProxySocket --socks5-server=${TailIP}:10551"
+$Trigger = New-ScheduledTaskTrigger -AtStartup
+$Principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+$Settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries `
+  -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) `
+  -RestartCount 99 -RestartInterval (New-TimeSpan -Minutes 1) -MultipleInstances IgnoreNew
 
-Start-Sleep 2
+Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger `
+  -Principal $Principal -Settings $Settings -Force | Out-Null
 
-# Start tailscaled in userspace mode with local SOCKS5 and HTTP proxy.
-Start-Process `
-  -FilePath "C:\Program Files\Tailscale\tailscaled.exe" `
-  -ArgumentList "--tun=userspace-networking --socks5-server=localhost:10551 --outbound-http-proxy-listen=localhost:10551" `
-  -WindowStyle Hidden
+# SOCKS5 无认证，只允许 tailnet 访问
+Remove-NetFirewallRule -DisplayName $RuleName -ErrorAction SilentlyContinue
+New-NetFirewallRule -DisplayName $RuleName -Direction Inbound -Action Allow `
+  -Protocol TCP -LocalAddress $TailIP -LocalPort 10551 `
+  -InterfaceAlias Tailscale -RemoteAddress 100.64.0.0/10 | Out-Null
 
+Start-ScheduledTask -TaskName $TaskName
 Start-Sleep 5
-
-# Bring Tailscale online.
-tailscale up --reset
+Get-NetTCPConnection -LocalPort 10551 -State Listen
 ```
-可以做成开机自启动命令
+
+其他 tailnet 设备使用 `socks5://<这台 Windows 的 Tailscale IP>:10551`。例如：
+
 ```powershell
-# 管理员 PowerShell 执行下面这整段
-# 需要把上面的命令包装成一个脚本文件，例如 `start-tailscale-proxy.ps1`，内容如下：
-$ScriptPath = "path\to\start-tailscale-proxy.ps1"
+curl.exe --socks5-hostname 100.72.173.82:10551 https://ifconfig.me
+```
 
-$Action = New-ScheduledTaskAction `
-  -Execute "powershell.exe" `
-  -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$ScriptPath`""
+停止并删除 SOCKS5 实例，不影响官方 Tailscale：
 
-$Trigger = New-ScheduledTaskTrigger -AtLogOn
-
-$Principal = New-ScheduledTaskPrincipal `
-  -UserId "$env:USERDOMAIN\$env:USERNAME" `
-  -RunLevel Highest
-
-Register-ScheduledTask `
-  -TaskName "Tailscale Userspace Proxy" `
-  -Action $Action `
-  -Trigger $Trigger `
-  -Principal $Principal `
-  -Force
-
-# 手动运行测试
-Start-ScheduledTask -TaskName "Tailscale Userspace Proxy"
-
-# 查看端口
-netstat -ano | findstr 10551
-# 看到类似输出： TCP    127.0.0.1:10551    0.0.0.0:0    LISTENING
+```powershell
+Stop-ScheduledTask -TaskName "Tailscale SOCKS5 Proxy" -ErrorAction SilentlyContinue
+Unregister-ScheduledTask -TaskName "Tailscale SOCKS5 Proxy" -Confirm:$false -ErrorAction SilentlyContinue
+Remove-NetFirewallRule -DisplayName "Tailscale SOCKS5 10551" -ErrorAction SilentlyContinue
+Get-CimInstance Win32_Process -Filter "Name='tailscaled.exe'" |
+  Where-Object { $_.CommandLine -like "*C:\ProgramData\TailscaleProxy\state.conf*" } |
+  ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
 ```
 
 ### 3.5 其他组网工具

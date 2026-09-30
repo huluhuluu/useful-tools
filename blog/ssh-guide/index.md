@@ -1,7 +1,7 @@
 ---
 title: "SSH 命令备忘"
 date: 2026-03-28T00:00:00+08:00
-lastmod: 2026-03-28T00:00:00+08:00
+lastmod: 2026-08-08T00:00:00+08:00
 draft: false
 description: "SSH 密钥管理、配置文件、端口转发等常用功能"
 slug: "ssh-guide"
@@ -46,7 +46,7 @@ ssh-keygen
     └── *.pem               # 其他密钥文件（如 AWS）
     ```
 
-## 1.3 SSH 配置文件    
+### 1.3 SSH 配置文件
 
 `~/.ssh/config` 文件可以简化 SSH 连接：
 
@@ -96,9 +96,90 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-## 2. SSH 端口转发
+## 2. Windows 启动 SSH 服务并配置免密登录
 
-### 2.1 本地端口转发 (Local Forward)
+这里将 Windows 作为 SSH 服务端，其它机器作为客户端。
+
+### 2.1 安装并启动 OpenSSH Server
+
+在管理员 PowerShell 中执行：
+
+```powershell
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+Start-Service sshd
+Set-Service -Name sshd -StartupType Automatic
+Get-Service sshd
+```
+
+查看 Windows 的局域网 IP：
+
+```powershell
+ipconfig
+```
+
+### 2.2 在客户端生成密钥
+
+在需要连接 Windows 的客户端执行：
+
+```bash
+ssh-keygen -t ed25519
+```
+
+默认会生成 `~/.ssh/id_ed25519` 私钥和 `~/.ssh/id_ed25519.pub` 公钥。私钥留在客户端，公钥放到 Windows 服务端。
+
+### 2.3 将公钥放到 Windows
+
+打开客户端的公钥文件，复制里面完整的一行内容：
+
+- Windows 客户端：`C:\Users\<客户端用户名>\.ssh\id_ed25519.pub`
+- Linux/macOS 客户端：`~/.ssh/id_ed25519.pub`
+
+普通 Windows 账户将公钥内容粘贴到：
+
+```text
+C:\Users\<Windows 用户名>\.ssh\authorized_keys
+```
+
+`.ssh` 是目录，`authorized_keys` 是没有扩展名的文本文件。目录不存在时，在 Windows 服务端执行：
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.ssh"
+notepad "$HOME\.ssh\authorized_keys"
+```
+
+在记事本中粘贴公钥、保存并关闭即可。
+
+如果登录账户属于 Windows 管理员组，公钥默认需要粘贴到：
+
+```text
+C:\ProgramData\ssh\administrators_authorized_keys
+```
+
+保存后在管理员 PowerShell 中设置文件权限：
+
+```powershell
+$adminKeys = "$env:ProgramData\ssh\administrators_authorized_keys"
+notepad $adminKeys
+icacls.exe $adminKeys /inheritance:r /grant:r '*S-1-5-32-544:F' '*S-1-5-18:F'
+```
+
+### 2.4 使用密钥登录
+
+默认名称 `id_ed25519` 会被 SSH 自动读取，直接连接即可：
+
+```bash
+ssh win_user@192.168.1.100
+```
+
+使用其它名称的私钥时，通过 `-i` 指定私钥路径：
+
+```bash
+ssh -i ~/.ssh/my_key win_user@192.168.1.100
+```
+
+## 3. SSH 端口转发
+
+### 3.1 本地端口转发 (Local Forward)
 
 将远程服务的端口映射到本地端口：
 
@@ -110,7 +191,7 @@ ssh -L 本地端口:目标主机:目标端口 user@server
 ssh -L 本地端口:目标主机:目标端口 alias-name
 ```
 
-### 2.2 远程端口转发 (Remote Forward)
+### 3.2 远程端口转发 (Remote Forward)
 
 将本地服务的端口暴露到远程服务器端口：
 
@@ -123,7 +204,7 @@ ssh -R 远程端口:本地主机:本地端口 alias-name
 # 设置成0.0.0.0则可以在服务器的任意ip访问
 ```
 
-### 2.3 动态端口转发 (SOCKS 代理)
+### 3.3 动态端口转发 (SOCKS 代理)
 
 创建本地 SOCKS 代理，所有流量通过服务器转发：
 
@@ -135,7 +216,7 @@ ssh -D 1080 user@server
 export all_proxy="socks5://127.0.0.1:1080"
 ```
 
-### 2.4 端口转发汇总
+### 3.4 端口转发汇总
 
 | 类型 | 参数 | 场景 |
 |------|------|------|
@@ -143,7 +224,7 @@ export all_proxy="socks5://127.0.0.1:1080"
 | 远程转发 | `-R` | 将本地服务端口暴露给远程 |
 | 动态转发 | `-D` | 创建代理，流量全部走服务器 |
 
-### 2.5 socat 远程转发端口
+### 3.5 socat 远程转发端口
 
 有一个常见限制：
 
@@ -188,8 +269,10 @@ socat TCP-LISTEN:8009,bind=0.0.0.0,fork,reuseaddr TCP:127.0.0.1:18009
 
 ---
 
-## 3. 参考链接
+## 4. 参考链接
 
 - [SSH 官方文档](https://www.openbsd.org/openssh/manuals.html)
+- [Microsoft Learn：Windows OpenSSH 入门](https://learn.microsoft.com/zh-cn/windows-server/administration/openssh/openssh_install_firstuse)
+- [Microsoft Learn：Windows OpenSSH 密钥管理](https://learn.microsoft.com/zh-cn/windows-server/administration/openssh/openssh_keymanagement)
 - [SSH 配置文件详解](https://linux.die.net/man/5/ssh_config)
 - [SSH 端口转发详解](https://www.ssh.com/academy/ssh/tunneling/example)

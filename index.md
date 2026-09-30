@@ -1,7 +1,7 @@
 ---
 title: tools
 date: 2026-01-30T08:00:00+08:00
-lastmod: 2026-07-08T20:00:00+08:00
+lastmod: 2026-07-22T12:00:00+08:00
 draft: false
 description: "开发过程中用到的一些实用小工具配置记录"
 slug: "useful-tools"
@@ -28,6 +28,7 @@ math: true
 | [Ubuntu 代理配置](/p/ubuntu-proxy/) | Ubuntu 系统代理配置方法汇总 | ✅ 完成 |
 | [Jetson 环境配置](/p/jetson-config/) | NVIDIA Jetson 开发板环境配置记录 | ✅ 完成 |
 | [华为开发板常用命令备忘](/p/huawei-board-commands/) | 华为 Atlas/Ascend 开发板常用命令速查 | ✅ 完成 |
+| [华为 910B EulerOS 环境配置](/p/huawei-910b-euleros-commands/) | 华为 Atlas 910B EulerOS 开发板环境配置与常用命令 | ✅ 完成 |
 | [Termux 环境配置](/p/termux-config/) | Android Termux 终端环境配置记录 | ✅ 完成 |
 | [Python 环境配置](/p/python-env/) | Python 环境管理工具介绍与配置 | ✅ 完成 |
 | [PowerShell 7 迁移备忘](/p/pwsh7-migration/) | Windows PowerShell 迁移到 PowerShell 7 记录 | ✅ 完成 |
@@ -50,6 +51,8 @@ math: true
 | [Codex CLI 配置](/p/codex-cli-config/) | OpenAI Codex CLI 配置第三方 API 端点 | ✅ 完成 |
 | [ccmanager 使用备忘](/p/ccmanager/) | 会话管理、模型接入和 Agent 路由使用整理 | ✅ 完成 |
 | [cc-connect 接入微信个人号](/p/cc-connect-wechat/) | 微信个人号接入与消息转发路径整理 | ✅ 完成 |
+| [Herdr Web Android 远程连接](/p/herdr-web-android/) | Windows、Tailscale、Psmux 和 SSH ProxyJump 下的 Herdr Android bridge 部署记录 | ✅ 完成 |
+| [fauxnix 使用备忘](/p/fauxnix/) | 在 Windows 上原生运行 Linux 风格命令，无需 WSL 和虚拟机 | ✅ 完成 |
 
 ### 终端工具
 

@@ -2,7 +2,7 @@
 title: "华为开发板常用命令备忘"
 date: 2026-03-29T13:00:00+08:00
 lastmod: 2026-03-29T13:00:00+08:00
-draft: flase
+draft: false
 description: "华为 Atlas/Ascend 开发板常用命令速查"
 slug: "huawei-board-commands"
 tags: ["tools"]
@@ -18,13 +18,13 @@ math: true
 
 ## 1. NPU 设备管理
 
-## 1.1 新用户
+### 1.1 新用户
 创建新用户并且复制ssh公钥，同时添加到HwHiAiUser分组中
 ```bash
 sudo adduser huluhuluu
 # sudo useradd -m huluhuluu
-sudo usermod -aG HwHiAiUser, docker huluhuluu
-sudo usermod -aG root, wheel huluhuluu # 添加sudo权限 慎重
+sudo usermod -aG HwHiAiUser,docker huluhuluu
+sudo usermod -aG root,wheel huluhuluu # 添加sudo权限 慎重
 passwd huluhuluu # 设置密码
 sudo su huluhuluu
 # 设置公钥
@@ -37,7 +37,99 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-### 1.2 查看 NPU 状态
+### 1.2 配置
+欧拉系统
+```bash
+[ ~]$ cat /etc/os-release
+NAME="Huawei Cloud EulerOS"
+VERSION="2.0 (aarch64)"
+ID="hce"
+VERSION_ID="2.0"
+PRETTY_NAME="Huawei Cloud EulerOS 2.0 (aarch64)"
+ANSI_COLOR="0;31"
+
+sudo dnf install zsh tmux -y
+# 配置 zsh
+git clone https://gitee.com/mirror-hub/ohmyzsh.git ~/.oh-my-zsh
+# 插件
+cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+git clone https://gitee.com/mirror-hub/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+git clone https://gitee.com/mirror-hub/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+# 启用插件
+echo "autoload -U compinit && compinit" >> ~/.zshrc
+sed -i '/^plugins=/c\plugins=(git sudo z zsh-syntax-highlighting zsh-autosuggestions fzf)' ~/.zshrc
+# 自动切换zsh
+touch ~/.bash_profile
+changeshell="exec $(which zsh) -l"
+echo "$changeshell" >> ~/.bash_profile
+
+# zoxide安装
+curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc # 根据输出判断
+echo 'eval "$(zoxide init zsh)"' >> ~/.zshrc
+# fzf安装
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install --all # 运行安装脚本ps
+
+source ~/.zshrc # 使配置生效
+
+# 切换到zsh
+exec zsh -l
+
+echo 'source /usr/local/Ascend/cann-9.0.1/set_env.sh' >> ~/.zshrc # 添加 CANN 环境变量配置
+echo 'source /usr/local/Ascend/nnal/atb/set_env.sh' >> ~/.zshrc # 添加 ATB 环境变量配置
+echo 'export LD_PRELOAD=/usr/lib64/libjemalloc.so.2:$LD_PRELOAD' >> ~/.zshrc # 添加 jemalloc 预加载配置; 不同系统下位置会有不同
+```
+
+配置miniforge
+```bash
+# 下载aarch版安装脚本
+wget https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-aarch64.sh
+# 安装和删除
+bash Miniforge3-Linux-aarch64.sh -b
+rm -rf Miniforge3-Linux-aarch64.sh
+# 设置环境变量
+echo 'source ~/miniforge3/etc/profile.d/conda.sh'  >> -a ~/.zshrc # 这里的路径注意要匹配
+
+# 可执行权限
+chmod u+x ~/miniforge3/etc/profile.d/conda.sh
+source ~/.zshrc
+conda init zsh
+
+# 华为源
+# conda config --add channels https://mirrors.huaweicloud.com/anaconda/pkgs/main/
+# conda config --add channels https://mirrors.huaweicloud.com/anaconda/pkgs/free/
+# conda config --add channels https://mirrors.huaweicloud.com/anaconda/cloud/conda-forge/
+# conda config --add channels https://mirrors.huaweicloud.com/anaconda/cloud/bioconda/
+# 配置ustc源
+# conda config --add channels https://mirrors.ustc.edu.cn/anaconda/pkgs/main/
+# conda config --add channels https://mirrors.ustc.edu.cn/anaconda/pkgs/free/
+# conda config --add channels https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge/
+# conda config --add channels https://mirrors.ustc.edu.cn/anaconda/cloud/bioconda/
+
+# 安装nputop
+# 测试华为源不如ustc快 # https://pypi.tuna.tsinghua.edu.cn/simple/
+pip install uv -i https://pypi.mirrors.ustc.edu.cn/simple/
+uv tool install ascend-nputop -i https://pypi.mirrors.ustc.edu.cn/simple/
+
+# 源码编译 安装htop
+sudo dnf groupinstall "Development Tools" -y
+sudo dnf install ncurses-devel autoconf automake libtool -y
+mkdir code && cd code
+# 1. 指定版本号 (使用加速代理)
+LATEST_VERSION="3.5.0"
+# 2. 下载源码包 (使用加速代理)
+wget "https://ghfast.top/https://github.com/htop-dev/htop/archive/refs/tags/${LATEST_VERSION}.tar.gz" -O htop-latest.tar.gz
+
+# 2. 解压
+tar xf htop-latest.tar.gz
+
+# 3. 进入目录（注意：解压后的文件夹名是 htop-版本号） 编译
+cd htop-*
+./autogen.sh && ./configure && make -j$(nproc) && sudo make install
+```
+
+### 1.3 查看 NPU 状态
 
 ```bash
 # 查看 NPU 设备
@@ -51,27 +143,7 @@ npu-smi info -m
 watch -n 1 npu-smi info
 ```
 
-### 1.3 nputop
-[nputop](https://github.com/youyve/nputop)是一个交互式命令行工具，专门用于监视和管理Ascend NPU上运行的进程,  但是依赖`python`环境
-
-```bash
-# 安装uv
-wget -sL https://mirrors.ustc.edu.cn/github-release/astral-sh/uv/LatestRelease/uv-installer.sh | sh
-
-# 通过uv安装nputop
-# echo 'alias nputop="uvx --from ascend-nputop nputop"' >> ~/.zshrc # 每次临时使用
-uv tool install ascend-nputop # 永久安装，更加建议
-
-# 设置uv源为华为云镜像
-echo 'export UV_INDEX_URL= https://repo.huaweicloud.com/repository/pypi/simple' >> ~/.zshrc
-# ustc源: https://mirrors.ustc.edu.cn/pypi/simple
-# 激活配置
-source ~/.zshrc
-# 运行 nputop：
-nputop
-```
-
-### 1.4 重启 NPU 服务
+### 1.5 重启 NPU 服务
 
 ```bash
 # 重启驱动服务
@@ -83,7 +155,7 @@ sudo systemctl restart ascend-docker-proxy
 sudo systemctl status ascend-docker-proxy
 ```
 
-### 1.5 启动docker
+### 1.6 启动docker
 ```bash
 # export IMAGE=quay.io/ascend/vllm-ascend:v0.13.0-a3
 export IMAGE=quay.io/ascend/vllm-ascend:v0.17.0rc1 # 这里的版本需要根据实际情况调整，建议使用最新版本
@@ -111,64 +183,6 @@ docker run --privileged \
     -v /root/.cache:/root/.cache \
     -it $IMAGE bash -c "source /usr/local/Ascend/ascend-toolkit/set_env.sh && source /usr/local/Ascend/nnal/atb/set_env.sh && /bin/bash"
 ```
-
-## 2. 安装常用包
-```bash
-# 换apt源
-# sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup # 备份
-
-# 写入配置（注意：必须用 sudo sh -c 包裹整个重定向）
-sh -c 'echo "deb https://mirrors.ustc.edu.cn/ubuntu-ports/ jammy main restricted universe multiverse
-deb https://mirrors.ustc.edu.cn/ubuntu-ports/ jammy-updates main restricted universe multiverse
-deb https://mirrors.ustc.edu.cn/ubuntu-ports/ jammy-backports main restricted universe multiverse
-deb https://mirrors.ustc.edu.cn/ubuntu-ports/ jammy-security main restricted universe multiverse" > /etc/apt/sources.list'
-# 更新软件包列表
-apt-get update
-
-# 安装常用工具
-apt-get install sudo zsh gzip netcat pv tmux htop lsof aria2 pigz git-lfs -y
-
-# 配置 zsh
-git clone https://gitee.com/mirror-hub/ohmyzsh.git ~/.oh-my-zsh
-# 插件
-cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-git clone https://gitee.com/mirror-hub/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-git clone https://gitee.com/mirror-hub/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-# 启用插件
-echo "autoload -U compinit && compinit" >> ~/.zshrc
-sed -i '/^plugins=/c\plugins=(git sudo z zsh-syntax-highlighting zsh-autosuggestions)' ~/.zshrc
-# 自动切换zsh
-touch ~/.bash_profile
-changeshell="exec $(which zsh) -l"
-echo "$changeshell" >> ~/.bash_profile
-
-# 切换到zsh
-exec zsh -l
-```
-
-### 2.1 安装minifoge
-```bash
-# 下载aarch版安装脚本
-wget https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-aarch64.sh
-# 安装和删除
-bash Miniforge3-Linux-aarch64.sh -b
-rm -rf Miniforge3-Linux-aarch64.sh
-# 设置环境变量
-echo 'source ~/miniforge3/etc/profile.d/conda.sh' >> ~/.zshrc # 这里的路径注意要匹配
-
-# 可执行权限
-chmod u+x ~/miniforge3/etc/profile.d/conda.sh
-source ~/.zshrc # 使配置生效
-
-# 初始化并且配置清华源
-conda init zsh && source ~/.zshrc
-# 配置ustc源
-conda config --add channels https://mirrors.ustc.edu.cn/anaconda/pkgs/main/
-conda config --add channels https://mirrors.ustc.edu.cn/anaconda/pkgs/free/
-conda config --add channels https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge/
-conda config --add channels https://mirrors.ustc.edu.cn/anaconda/cloud/bioconda/
-```
-
 
 ---
 

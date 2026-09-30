@@ -12,6 +12,7 @@
 | [Ubuntu 代理配置](blog/ubuntu-proxy/index.md) | Ubuntu 系统代理配置方法汇总 | ✅ 完成 |
 | [Jetson 环境配置](blog/jetson-config/index.md) | NVIDIA Jetson 开发板环境配置记录 | ✅ 完成 |
 | [华为开发板常用命令备忘](blog/huawei-board-commands/index.md) | 华为 Atlas/Ascend 开发板常用命令速查 | ✅ 完成 |
+| [华为 910B EulerOS 环境配置](blog/huawei-910b-eulerOS-commands/index.md) | 华为 Atlas 910B EulerOS 开发板环境配置与常用命令 | ✅ 完成 |
 | [Termux 环境配置](blog/termux-config/index.md) | Android Termux 终端环境配置记录 | ✅ 完成 |
 | [Python 环境配置](blog/python-env/index.md) | Python 环境管理工具介绍与配置 | ✅ 完成 |
 | [PowerShell 7 迁移备忘](blog/pwsh7-migration/index.md) | Windows PowerShell 迁移到 PowerShell 7 记录 | ✅ 完成 |
@@ -34,6 +35,8 @@
 | [Codex CLI 配置](blog/codex-cli-config/index.md) | OpenAI Codex CLI 配置第三方 API 端点 | ✅ 完成 |
 | [ccmanager 使用备忘](blog/ccmanager/index.md) | 会话管理、模型接入和 Agent 路由使用整理 | ✅ 完成 |
 | [cc-connect 接入微信个人号](blog/cc-connect-wechat/index.md) | 微信个人号接入与消息转发路径整理 | ✅ 完成 |
+| [Herdr Web Android 远程连接](blog/herdr-web-android/index.md) | Windows、Tailscale、Psmux 和 SSH ProxyJump 下的 Herdr Android bridge 部署记录 | ✅ 完成 |
+| [fauxnix 使用备忘](blog/fauxnix/index.md) | 在 Windows 上原生运行 Linux 风格命令，无需 WSL 和虚拟机 | ✅ 完成 |
 
 ### 终端工具
 

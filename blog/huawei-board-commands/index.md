@@ -38,7 +38,7 @@ chmod 600 ~/.ssh/authorized_keys
 ```
 
 ### 1.2 配置
-欧拉系统
+欧拉系统，快速配置可直接用当前目录下的安装脚本`bash install-dump.sh`
 ```bash
 [ ~]$ cat /etc/os-release
 NAME="Huawei Cloud EulerOS"
@@ -79,6 +79,7 @@ exec zsh -l
 echo 'source /usr/local/Ascend/cann-9.0.1/set_env.sh' >> ~/.zshrc # 添加 CANN 环境变量配置
 echo 'source /usr/local/Ascend/nnal/atb/set_env.sh' >> ~/.zshrc # 添加 ATB 环境变量配置
 echo 'export LD_PRELOAD=/usr/lib64/libjemalloc.so.2:$LD_PRELOAD' >> ~/.zshrc # 添加 jemalloc 预加载配置; 不同系统下位置会有不同
+source ~/.zshrc # 使配置生效
 ```
 
 配置miniforge
@@ -182,6 +183,49 @@ docker run --privileged \
     -v /etc/ascend_install.info:/etc/ascend_install.info \
     -v /root/.cache:/root/.cache \
     -it $IMAGE bash -c "source /usr/local/Ascend/ascend-toolkit/set_env.sh && source /usr/local/Ascend/nnal/atb/set_env.sh && /bin/bash"
+```
+
+## 2. 环境配置参考
+
+- 硬件环境: `CANN 9.0.1` + ` EulerOS release 2.0`
+- 待配置环境：[vllm v23.0](https://github.com/vllm-project/vllm/tree/v0.23.0) + [vllm-ascend v0.23.0rc1](https://github.com/vllm-project/vllm-ascend/tree/v0.23.0rc1) + [TorchNPU v26.0.0](https://www.hiascend.com/developer/software/ai-frameworks/pytorch/download?versionId=172&ids=26958bcc909e4cd48fa56d4c4a43ebec%2C98%2C107%2C1%2C6%2C3%2C)
+
+```bash
+# 1. 激活环境变量
+source /usr/local/Ascend/cann-9.0.1/set_env.sh  # CANN 环境变量配置
+source /usr/local/Ascend/nnal/atb/set_env.sh # ATB 环境变量配置
+
+# 虚拟环境
+conda create -n my-vllm python=3.12 pip -y
+conda activate my-vllm
+
+# 2. 安装torchnpu 根据上方参考链接 指引找指定 py+系统+cann驱动 对应的版本
+wget https://download.pytorch.org/whl/cpu/torch-2.10.0%2Bcpu-cp312-cp312-manylinux_2_28_aarch64.whl
+uv pip install torch-2.10.0+cpu-cp312-cp312-manylinux_2_28_aarch64.whl
+wget https://gitcode.com/Ascend/pytorch/releases/download/v26.0.0-pytorch2.10.0/torch_npu-2.10.0-cp312-cp312-manylinux_2_28_aarch64.whl
+uv pip install torch_npu-2.10.0-cp312-cp312-manylinux_2_28_aarch64.whl
+uv pip install protobuf
+
+# 2. 源码安装vllm
+git clone -b v0.23.0 https://github.com/vllm-project/vllm.git
+cd vllm
+VLLM_TARGET_DEVICE=empty uv pip install -e .
+cd ..
+
+git clone -b v0.23.0rc1  https://github.com/vllm-project/vllm-ascend.git
+cd vllm-ascend
+SOC_VERSION=ascend910b1 COMPILE_CUSTOM_KERNELS=1 MAX_JOBS=16 python -m pip install -e . --no-build-isolation 
+uv pip install setuptools_scm
+uv pip install -e . \
+  --no-build-isolation \
+  --index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+  --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
+  --extra-index-url https://pypi.org/simple \
+  --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
+  --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
+  --extra-index-url https://download.pytorch.org/whl/cpu/
+# 建议非隔离安装
+cd ..
 ```
 
 ---

@@ -47,7 +47,7 @@ Opening: http://localhost:9820
 ## 1.1 配置
 通过`Vscode`的`Live Preview`插件打开上面产生的`http://localhost:9820`地址，这里服务器是内网环境，直接在本地启动是不能访问的(或者可以通过`ssh -L 9820:localhost:9820 user@server`的方式把服务器的9820端口映射到本地).
 
-`Live Preview`插件安装和使用可以参考[这篇文章](../vscode-markdown-preview/)，通过`ctrl+shift+p`打开`Vscode`命令面板，输入`Live Preview: Start Server`进行启动
+`Live Preview`插件安装和使用可以参考[这篇文章](../vscode-preview/index.md)，通过`ctrl+shift+p`打开`Vscode`命令面板，输入`Live Preview: Start Server`进行启动
 ![VSCode 中启动 Live Preview 服务](./png/live-preview-command.png)
 在浏览器里打开地址`http://localhost:9820`，就可以看到配置界面了。
 ![cc-connect Web 管理界面首页](./png/web-admin-home.png)

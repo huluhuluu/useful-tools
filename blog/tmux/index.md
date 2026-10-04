@@ -73,9 +73,7 @@ echo 'set -g mouse on' >> ~/.tmux.conf # 开启鼠标模式
 
 ![关闭分屏确认提示](./png/pane-close.png)
 
-重命名会话时会进入底部命令行：
-
-![重命名会话](./png/rename-session.png)
+重命名会话时会进入底部命令行（`Ctrl+B, :rename-session name`）。
 
 开启鼠标模式的命令如下：
 

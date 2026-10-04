@@ -340,6 +340,6 @@ ssh w4090_host_tail "tmux kill-session -t herdr-web-w4090"
 - [`herdr-web`](https://github.com/kcosr/herdr-web)
 - [`herdr-web v0.3.3 Release`](https://github.com/kcosr/herdr-web/releases/tag/v0.3.3)
 - [`Herdr`](https://github.com/ogulcancelik/herdr)
-- [`Psmux 使用备忘`](/p/psmux-guide/)
-- [`SSH 命令备忘`](/p/ssh-guide/)
+- [`Psmux 使用备忘`](../psmux/index.md)
+- [`SSH 命令备忘`](../ssh-guide/index.md)
 - [`Tailscale`](https://tailscale.com/)

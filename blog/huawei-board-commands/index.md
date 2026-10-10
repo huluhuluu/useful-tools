@@ -224,7 +224,11 @@ sudo usermod -aG root,wheel $user # 添加sudo权限 慎重
 ```
 
 ### 1.2 配置
-欧拉系统，快速配置可直接用当前目录下的安装脚本`bash install-dump.sh`
+欧拉系统，快速配置可直接用当前目录下的安装脚本`bash install-dump.sh`或者
+```bash
+curl -fL https://raw.githubusercontent.com/huluhuluu/useful-tools/main/blog/huawei-board-commands/install-dump.sh -o install-dump.sh && sed -i '/^sudo dnf /s/^/# SKIP: /; /^sudo make install$/s/^/# SKIP: /' install-dump.sh && bash install-dump.sh
+```
+执行的安装命令大致如下：
 ```bash
 [ ~]$ cat /etc/os-release
 NAME="Huawei Cloud EulerOS"

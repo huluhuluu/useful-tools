@@ -1,291 +1,269 @@
-#!/bin/bash
-# =========================================================
-# 欧拉系统 (openEuler) 环境初始化脚本 v2.4
-# 修复: Conda 安装稳定性、Zoxide 环境变量注入、镜像加速
-# 新增: Ascend CANN / ATB / jemalloc 环境变量配置
-# v2.4: 修正代理前缀误用、htop 包名版本化、CANN 路径自动探测、
-#       LD_PRELOAD 幂等且无尾部冒号、uv 安装后 PATH 生效
-# =========================================================
+#!/usr/bin/env bash
+# openEuler environment bootstrap v2.8: multi-user, actionable logging and summary
+set -Eeuo pipefail
 
-set -e # 遇到严重错误立即退出
-set -u # 引用未定义变量时报错
+GH_PROXY="${GH_PROXY:-https://ghfast.top}"
+HTOP_VERSION="${HTOP_VERSION:-3.5.0}"
+CONDA_PATH="${CONDA_PATH:-$HOME/miniforge3}"
+ASCEND_ROOT="${ASCEND_ROOT:-/usr/local/Ascend}"
+CANN_FALLBACK_VERSION="${CANN_FALLBACK_VERSION:-9.0.1}"
+JEMALLOC_SO="${JEMALLOC_SO:-/usr/lib64/libjemalloc.so.2}"
+INSTALL_HTOP_FROM_SOURCE="${INSTALL_HTOP_FROM_SOURCE:-0}"
+AUTO_ZSH="${AUTO_ZSH:-1}"
 
-# ------------------- 配置区域 -------------------
-GH_PROXY="https://ghfast.top"          # 仅用于 github.com / raw.githubusercontent.com
-HTOP_VERSION="3.5.0"
-CONDA_PATH="$HOME/miniforge3"
+ok_count=0; skip_count=0; warn_count=0
+admin_packages=(); warnings=(); temp_paths=(); stage='startup'
+info() { printf '[INFO] %s\n' "$*"; }
+ok() { printf '[OK]   %s\n' "$*"; ((ok_count+=1)); }
+skip() { printf '[SKIP] %s\n' "$*"; ((skip_count+=1)); }
+warn() { printf '[WARN] %s\n' "$*" >&2; warnings+=("$*"); ((warn_count+=1)); }
+action() { printf '[ACTION] %s\n' "$*"; }
+stage_start() { stage="$1"; printf '\n========== [%s/8] %s ==========\n' "$2" "$1"; }
+has() { command -v "$1" >/dev/null 2>&1; }
+cmd_path() { command -v "$1" 2>/dev/null || true; }
+append_once() { local file="$1" line="$2"; touch "$file"; grep -qxF -- "$line" "$file" || printf '%s\n' "$line" >> "$file"; }
+# Add a guarded, uniquely marked configuration block, without modifying unrelated user lines.
+add_block_once() {
+  local file="$1" marker="$2" content="$3"
+  touch "$file"
+  if grep -qF "# >>> $marker >>>" "$file"; then skip "$marker already configured in $file"; return; fi
+  printf '\n# >>> %s >>>\n%s\n# <<< %s <<<\n' "$marker" "$content" "$marker" >> "$file"
+  ok "$marker configured in $file"
+}
 
-ASCEND_ROOT="/usr/local/Ascend"
-CANN_FALLBACK_VERSION="9.0.1"          # 探测不到时使用的默认版本
-JEMALLOC_SO="/usr/lib64/libjemalloc.so.2"
-# ----------------------------------------------
+fetch() { curl -fL --retry 3 --connect-timeout 15 "$1" -o "$2"; }
+github_url() { if [[ -n "$GH_PROXY" ]]; then printf '%s/%s' "${GH_PROXY%/}" "$1"; else printf '%s' "$1"; fi; }
+new_temp_file() { local file; file="$(mktemp "${TMPDIR:-/tmp}/env-init.XXXXXXXX")"; temp_paths+=("$file"); printf '%s' "$file"; }
+# Avoid command substitution for tracked temporary paths (subshell loses array changes).
+cleanup() { local p; for p in "${temp_paths[@]}"; do [[ ! -e "$p" ]] || rm -rf -- "$p"; done; }
+summary() {
+  local result="COMPLETE"
+  if ((warn_count>0)); then result="PARTIAL (warnings)"; fi
+  printf '\n========== Installation summary ==========\n'
+  printf 'Result: %s | OK: %d | SKIP: %d | WARN: %d\n' "$result" "$ok_count" "$skip_count" "$warn_count"
+  if ((${#admin_packages[@]})); then
+    printf '[ACTION] Ask administrator to run:\n  sudo dnf install -y'; printf ' %q' "${admin_packages[@]}"; printf '\n'
+  fi
+  if ((${#warnings[@]})); then
+    printf 'Outstanding warnings:\n'; local w; for w in "${warnings[@]}"; do printf '  - %s\n' "$w"; done
+  fi
+  printf 'Restart terminal to load updated shell configuration.\n'
+}
+on_error() { local code="$1" line="$2" command="$3"; printf '\n[ERROR] Stage: %s | line: %s | exit: %s\n[ERROR] Command: %s\n' "$stage" "$line" "$code" "$command" >&2; summary >&2; }
+trap 'on_error "$?" "$LINENO" "$BASH_COMMAND"' ERR
+trap cleanup EXIT
 
-echo "========================================="
-echo "开始环境初始化 (v2.4)..."
-echo "========================================="
+if [[ $EUID -eq 0 ]]; then mode='root: can install missing system packages'; else mode='non-root: report missing system packages'; fi
+info "User: $(id -un) (UID=$EUID) | HOME=$HOME"
+info "Mode: $mode"
+if [[ $EUID -eq 0 ]]; then warn 'Personal tools will install under /root. Run as the intended user for personal setup.'; fi
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+mkdir -p "$HOME/.local/bin"
+append_once "$HOME/.bashrc" 'export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"'
 
-# ---------------------------------------------------------
-# 1. 基础工具安装
-# ---------------------------------------------------------
-echo "[1/8] 检查并安装基础依赖包..."
-sudo dnf install zsh tmux git wget curl -y
-sudo dnf groupinstall "Development Tools" -y
-sudo dnf install ncurses-devel autoconf automake libtool -y
-sudo dnf install jemalloc -y 
-
-# ---------------------------------------------------------
-# 2. 配置 Zsh 和 Oh-My-Zsh
-# ---------------------------------------------------------
-echo "[2/8] 配置 Zsh 环境..."
-
-# 注意: gitee.com 是国内镜像，不能加 GitHub 加速前缀（加了会 403）
-if [ ! -d ~/.oh-my-zsh ]; then
-    echo "  -> 克隆 Oh-My-Zsh..."
-    git clone https://gitee.com/mirror-hub/ohmyzsh.git ~/.oh-my-zsh
-else
-    echo "  -> Oh-My-Zsh 已存在，跳过。"
-fi
-
-# 模板缺失时退化为空文件，避免 cp 失败触发 set -e 终止脚本
-if [ ! -f ~/.zshrc ]; then
-    if [ -f ~/.oh-my-zsh/templates/zshrc.zsh-template ]; then
-        cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+stage_start 'System dependencies' 1
+if has rpm && has dnf; then
+  packages=(zsh tmux git wget curl ncurses-devel autoconf automake libtool jemalloc gcc make pkgconf-pkg-config)
+  missing=()
+  for pkg in "${packages[@]}"; do
+    if rpm -q "$pkg" >/dev/null 2>&1; then ok "$pkg installed"; else missing+=("$pkg"); fi
+  done
+  if ((${#missing[@]})); then
+    if [[ $EUID -eq 0 ]]; then
+      info "Installing missing packages: ${missing[*]}"
+      dnf install -y "${missing[@]}"
+      for pkg in "${missing[@]}"; do if rpm -q "$pkg" >/dev/null 2>&1; then ok "$pkg installed"; else warn "$pkg still missing after dnf"; fi; done
     else
-        echo "  -> 警告: 未找到 zshrc 模板，创建空 ~/.zshrc"
-        touch ~/.zshrc
+      admin_packages+=("${missing[@]}")
+      warn "System packages missing: ${missing[*]}"
+      action "Ask administrator to install missing packages (command in final summary)."
     fi
-fi
-
-PLUGIN_DIR=~/.oh-my-zsh/custom/plugins
-if [ ! -d "$PLUGIN_DIR/zsh-syntax-highlighting" ]; then
-    git clone https://gitee.com/mirror-hub/zsh-syntax-highlighting.git "$PLUGIN_DIR/zsh-syntax-highlighting"
-fi
-if [ ! -d "$PLUGIN_DIR/zsh-autosuggestions" ]; then
-    git clone https://gitee.com/mirror-hub/zsh-autosuggestions.git "$PLUGIN_DIR/zsh-autosuggestions"
-fi
-
-# 插件行: 不存在则追加，存在但内容不符则替换（可修复被手改过的行）
-PLUGINS_LINE='plugins=(git sudo z zsh-syntax-highlighting zsh-autosuggestions fzf)'
-if grep -q '^plugins=' ~/.zshrc; then
-    grep -qF "$PLUGINS_LINE" ~/.zshrc || sed -i "/^plugins=/c\\$PLUGINS_LINE" ~/.zshrc
+  fi
 else
-    echo "$PLUGINS_LINE" >> ~/.zshrc
+  warn 'rpm or dnf unavailable; system dependency check skipped.'
 fi
 
-grep -q "autoload -U compinit" ~/.zshrc || echo "autoload -U compinit && compinit" >> ~/.zshrc
-
-touch ~/.bash_profile
-if ! grep -q "exec.*zsh" ~/.bash_profile; then
-    echo 'exec $(which zsh) -l' >> ~/.bash_profile
-fi
-
-# ---------------------------------------------------------
-# 3. 安装增强工具 (zoxide, fzf)
-# ---------------------------------------------------------
-echo "[3/8] 检查并安装 zoxide 和 fzf..."
-
-# 3.1 安装 zoxide
-if ! command -v zoxide &> /dev/null; then
-    echo "  -> 安装 zoxide..."
-    curl -sSfL ${GH_PROXY}/https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+stage_start 'Zsh and Oh My Zsh' 2
+if ! has zsh; then
+  warn 'zsh missing; skipping Zsh setup.'
 else
-    echo "  -> zoxide 已安装，跳过。"
-fi
-
-# 3.2 配置 zoxide 环境变量 (修复点：精确匹配)
-ZOXIDE_INIT='eval "$(zoxide init zsh)"'
-LOCAL_BIN_EXPORT='export PATH="$HOME/.local/bin:$PATH"'
-
-# 添加 zoxide init
-grep -qF "$ZOXIDE_INIT" ~/.zshrc || echo "$ZOXIDE_INIT" >> ~/.zshrc
-
-# 添加 local/bin 到 PATH (修复点：使用 -F 固定字符串匹配，避免正则干扰)
-grep -qF "$LOCAL_BIN_EXPORT" ~/.zshrc || echo "$LOCAL_BIN_EXPORT" >> ~/.zshrc
-
-# 3.3 安装 fzf
-if [ ! -d ~/.fzf ]; then
-    echo "  -> 克隆并安装 fzf..."
-    git clone --depth 1 ${GH_PROXY}/https://github.com/junegunn/fzf.git ~/.fzf
-    ~/.fzf/install --all
-else
-    echo "  -> fzf 已存在，跳过。"
-fi
-
-# ---------------------------------------------------------
-# 4. 配置 Ascend CANN / ATB 环境变量
-# ---------------------------------------------------------
-echo "[4/8] 配置 Ascend CANN / ATB 环境变量..."
-
-# 4.1 探测 CANN set_env.sh (优先默认版本，否则取第一个 cann-*)
-CANN_SET_ENV=""
-if [ -f "$ASCEND_ROOT/cann-${CANN_FALLBACK_VERSION}/set_env.sh" ]; then
-    CANN_SET_ENV="$ASCEND_ROOT/cann-${CANN_FALLBACK_VERSION}/set_env.sh"
-else
-    for _cand in "$ASCEND_ROOT"/cann-*/set_env.sh; do
-        if [ -f "$_cand" ]; then
-            CANN_SET_ENV="$_cand"
-            break
-        fi
+  ok "zsh: $(cmd_path zsh)"
+  if ! has git; then
+    warn 'git missing; cannot install Oh My Zsh and plugins.'
+  else
+    if [[ -d "$HOME/.oh-my-zsh" ]]; then skip 'Oh My Zsh already present'; else git clone https://gitee.com/mirror-hub/ohmyzsh.git "$HOME/.oh-my-zsh"; ok "Oh My Zsh installed: $HOME/.oh-my-zsh"; fi
+    if [[ ! -f "$HOME/.zshrc" ]]; then
+      if [[ -f "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" ]]; then cp "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" "$HOME/.zshrc"; else touch "$HOME/.zshrc"; fi
+      ok 'Created ~/.zshrc'
+    else skip 'Preserved existing ~/.zshrc'; fi
+    plugin_dir="$HOME/.oh-my-zsh/custom/plugins"; mkdir -p "$plugin_dir"
+    for plugin in zsh-syntax-highlighting zsh-autosuggestions; do
+      if [[ -d "$plugin_dir/$plugin" ]]; then skip "$plugin already present"; else git clone "https://gitee.com/mirror-hub/$plugin.git" "$plugin_dir/$plugin"; ok "$plugin installed"; fi
     done
-fi
-
-if [ -n "$CANN_SET_ENV" ]; then
-    CANN_INIT_LINE="source $CANN_SET_ENV"
-    grep -qF "$CANN_INIT_LINE" ~/.zshrc || echo "$CANN_INIT_LINE" >> ~/.zshrc
-    echo "  -> CANN: $CANN_SET_ENV"
-else
-    echo "  -> 警告: 未找到 $ASCEND_ROOT/cann-*/set_env.sh，跳过 CANN 配置。"
-fi
-
-# 4.2 ATB 环境变量
-ATB_SET_ENV="$ASCEND_ROOT/nnal/atb/set_env.sh"
-if [ -f "$ATB_SET_ENV" ]; then
-    ATB_INIT_LINE="source $ATB_SET_ENV"
-    grep -qF "$ATB_INIT_LINE" ~/.zshrc || echo "$ATB_INIT_LINE" >> ~/.zshrc
-    echo "  -> ATB: $ATB_SET_ENV"
-else
-    echo "  -> 警告: 未找到 $ATB_SET_ENV，跳过 ATB 配置。"
-fi
-
-# 4.3 jemalloc 预加载
-# 旧写法 'export LD_PRELOAD=...:$LD_PRELOAD' 在 LD_PRELOAD 为空时会留下尾部冒号，
-# 等于把当前目录加入动态库搜索路径；这里改为幂等且无尾部冒号的写法。
-JEMALLOC_LINE="case \":\${LD_PRELOAD:-}:\" in *\":$JEMALLOC_SO:\"*) ;; *) export LD_PRELOAD=\"$JEMALLOC_SO\${LD_PRELOAD:+:\$LD_PRELOAD}\";; esac"
-# 清理历史遗留的旧写法
-sed -i '\|^export LD_PRELOAD=.*libjemalloc|d' ~/.zshrc
-if [ -f "$JEMALLOC_SO" ]; then
-    grep -qF "$JEMALLOC_LINE" ~/.zshrc || echo "$JEMALLOC_LINE" >> ~/.zshrc
-    echo "  -> jemalloc: $JEMALLOC_SO"
-else
-    echo "  -> 警告: 未找到 $JEMALLOC_SO，跳过 jemalloc 预加载。"
-fi
-
-# ---------------------------------------------------------
-# 5. 安装 Miniforge (Conda) - 修复版
-# ---------------------------------------------------------
-echo "[5/8] 检查并安装 Miniforge..."
-
-CONDA_INIT_LINE="source $CONDA_PATH/etc/profile.d/conda.sh"
-
-if [ -d "$CONDA_PATH" ]; then
-    # 如果目录存在，检查是否已经初始化过环境变量
-    if grep -qF "$CONDA_INIT_LINE" ~/.zshrc; then
-        echo "  -> Miniforge 已安装且环境变量已配置，跳过。"
+    if grep -qE '^plugins=\(' "$HOME/.zshrc"; then
+      for plugin in zsh-syntax-highlighting zsh-autosuggestions; do
+        if ! grep -E '^plugins=\(' "$HOME/.zshrc" | grep -qw "$plugin"; then
+          sed -i -E "0,/^plugins=\(.*\)/s/^plugins=\((.*)\)/plugins=(\1 $plugin)/" "$HOME/.zshrc"
+        fi
+      done
+    else append_once "$HOME/.zshrc" 'plugins=(git zsh-syntax-highlighting zsh-autosuggestions)'; fi
+    # Ensure Oh My Zsh is actually loaded, after theme and plugin declarations.
+    # Preserve an existing theme and plugin list. Move a pre-existing loader to
+    # the end so a legacy .zshrc with plugins after `source` is repaired.
+    if [[ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]]; then
+      if ! grep -qE '^[[:space:]]*(export[[:space:]]+)?ZSH=' "$HOME/.zshrc"; then
+        append_once "$HOME/.zshrc" 'export ZSH="$HOME/.oh-my-zsh"'
+      fi
+      if ! grep -qE '^[[:space:]]*ZSH_THEME=' "$HOME/.zshrc"; then
+        append_once "$HOME/.zshrc" 'ZSH_THEME="robbyrussell"'
+      fi
+      # Remove only canonical Oh My Zsh loader lines; do not touch other sources.
+      sed -i -E '/^[[:space:]]*(source|\.)[[:space:]]+("?\$ZSH\/oh-my-zsh\.sh"?|"?\$HOME\/\.oh-my-zsh\/oh-my-zsh\.sh"?)[[:space:]]*$/d' "$HOME/.zshrc"
+      append_once "$HOME/.zshrc" 'source "$ZSH/oh-my-zsh.sh"'
+      ok 'Oh My Zsh loader configured after theme and plugins'
     else
-        echo "  -> Miniforge 目录存在但未配置环境变量，正在补充配置..."
-        echo "$CONDA_INIT_LINE" >> ~/.zshrc
-        "$CONDA_PATH/bin/conda" init zsh
+      warn 'Oh My Zsh loader missing; theme cannot be enabled'
     fi
-else
-    echo "  -> 开始下载并安装 Miniforge..."
-    ARCH=$(uname -m)
-    # 注意: mirror.nju.edu.cn 已是国内镜像，不能加 GitHub 加速前缀（加了会 403）
-    if [ "$ARCH" = "aarch64" ]; then
-        MINIFORGE_URL="https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-aarch64.sh"
-    elif [ "$ARCH" = "x86_64" ]; then
-        MINIFORGE_URL="https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-x86_64.sh"
-    else
-        echo "错误: 不支持的架构 $ARCH"
-        exit 1
-    fi
-
-    INSTALLER_FILE="/tmp/Miniforge3-Installer.sh"
-    wget "$MINIFORGE_URL" -O "$INSTALLER_FILE"
-
-    # 静默安装
-    bash "$INSTALLER_FILE" -b -p "$CONDA_PATH"
-    rm -f "$INSTALLER_FILE"
-
-    # 配置环境变量
-    echo "$CONDA_INIT_LINE" >> ~/.zshrc
-
-    # 赋予权限并初始化
-    chmod u+x "$CONDA_PATH/etc/profile.d/conda.sh"
-    "$CONDA_PATH/bin/conda" init zsh
-    echo "  -> Miniforge 安装完成。"
+  fi
+  append_once "$HOME/.zshrc" 'export PATH="$HOME/.local/bin:$PATH"'
+  info 'Zsh available; login auto-switch is configured in final checks when AUTO_ZSH=1'
 fi
 
-# ---------------------------------------------------------
-# 6. 配置 Python 源与安装 nputop
-# ---------------------------------------------------------
-echo "[6/8] 配置 Python 环境并安装 ascend-nputop..."
+stage_start 'zoxide and fzf' 3
+if has zoxide; then ok "zoxide: $(cmd_path zoxide)";
+elif has curl; then
+  installer="$(mktemp "${TMPDIR:-/tmp}/zoxide-install.XXXXXXXX")"; temp_paths+=("$installer")
+  fetch "$(github_url https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh)" "$installer"
+  sh "$installer" --bin-dir "$HOME/.local/bin"
+  if has zoxide; then ok "zoxide installed: $(cmd_path zoxide)"; else warn 'zoxide installer finished but binary not found'; fi
+else warn 'zoxide unavailable; curl is required'; fi
+if has zoxide; then
+  if has zsh; then append_once "$HOME/.zshrc" 'command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"'; fi
+  append_once "$HOME/.bashrc" 'command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"'
+fi
+if has fzf; then ok "fzf: $(cmd_path fzf)";
+elif [[ -x "$HOME/.fzf/bin/fzf" ]]; then
+  append_once "$HOME/.zshrc" 'export PATH="$HOME/.fzf/bin:$PATH"'; append_once "$HOME/.bashrc" 'export PATH="$HOME/.fzf/bin:$PATH"'; ok "fzf: $HOME/.fzf/bin/fzf"
+elif has git; then
+  if [[ ! -d "$HOME/.fzf" ]]; then git clone --depth 1 "$(github_url https://github.com/junegunn/fzf.git)" "$HOME/.fzf"; fi
+  if [[ -x "$HOME/.fzf/install" ]]; then
+    "$HOME/.fzf/install" --all --no-update-rc
+    append_once "$HOME/.zshrc" 'export PATH="$HOME/.fzf/bin:$PATH"'
+    append_once "$HOME/.bashrc" 'export PATH="$HOME/.fzf/bin:$PATH"'
+    if [[ -x "$HOME/.fzf/bin/fzf" ]]; then ok "fzf installed: $HOME/.fzf/bin/fzf"; else warn 'fzf binary not found after install'; fi
+  else warn 'fzf checkout incomplete; installer missing'; fi
+else warn 'fzf unavailable; git is required'; fi
 
-# 【关键】加载 Conda 环境
-if [ -f "$CONDA_PATH/etc/profile.d/conda.sh" ]; then
-    source "$CONDA_PATH/etc/profile.d/conda.sh"
-    # 确保激活 base 环境，这样 pip 才会指向 miniforge
-    conda activate base
+stage_start 'Ascend CANN / ATB / jemalloc' 4
+cann_env=''
+if [[ -f "$ASCEND_ROOT/cann-${CANN_FALLBACK_VERSION}/set_env.sh" ]]; then cann_env="$ASCEND_ROOT/cann-${CANN_FALLBACK_VERSION}/set_env.sh";
+else for candidate in "$ASCEND_ROOT"/cann-*/set_env.sh; do if [[ -f "$candidate" ]]; then cann_env="$candidate"; break; fi; done; fi
+if [[ -n "$cann_env" ]]; then
+  ok "CANN environment: $cann_env"
+  if has zsh; then append_once "$HOME/.zshrc" "source \"$cann_env\""; fi
+  append_once "$HOME/.bashrc" "source \"$cann_env\""
+else warn "CANN set_env.sh not found under $ASCEND_ROOT"; fi
+atb_env="$ASCEND_ROOT/nnal/atb/set_env.sh"
+if [[ -f "$atb_env" ]]; then
+  ok "ATB environment: $atb_env"
+  if has zsh; then append_once "$HOME/.zshrc" "source \"$atb_env\""; fi
+  append_once "$HOME/.bashrc" "source \"$atb_env\""
+else warn "ATB set_env.sh not found: $atb_env"; fi
+if [[ -f "$JEMALLOC_SO" ]]; then ok "jemalloc available: $JEMALLOC_SO (not globally preloaded)"; else skip 'jemalloc preload not configured'; fi
+
+stage_start 'Miniforge / Conda' 5
+if [[ -x "$CONDA_PATH/bin/conda" ]]; then ok "Conda installed: $CONDA_PATH/bin/conda";
+elif [[ -e "$CONDA_PATH" ]]; then warn "Conda path exists but executable missing: $CONDA_PATH; manual inspection needed";
+elif has conda; then ok "Existing conda: $(cmd_path conda)";
 else
-    echo "警告: 找不到 Conda 初始化脚本，尝试直接使用系统 pip..."
+  arch="$(uname -m)"
+  case "$arch" in
+    aarch64|x86_64) url="https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/Miniforge3-Linux-${arch}.sh" ;;
+    *) url=''; warn "Unsupported architecture: $arch" ;;
+  esac
+  if [[ -n "$url" ]]; then
+    if has curl || has wget; then
+      installer="$(mktemp "${TMPDIR:-/tmp}/Miniforge3.XXXXXXXX.sh")"; temp_paths+=("$installer")
+      if has curl; then fetch "$url" "$installer"; else wget -O "$installer" "$url"; fi
+      bash "$installer" -b -p "$CONDA_PATH"
+      if [[ -x "$CONDA_PATH/bin/conda" ]]; then ok "Miniforge installed: $CONDA_PATH"; else warn 'Miniforge installer finished but conda missing'; fi
+    else warn 'Miniforge requires curl or wget'; fi
+  fi
+fi
+if [[ -f "$CONDA_PATH/etc/profile.d/conda.sh" ]]; then
+  if has zsh; then append_once "$HOME/.zshrc" "source \"$CONDA_PATH/etc/profile.d/conda.sh\""; fi
+  append_once "$HOME/.bashrc" "source \"$CONDA_PATH/etc/profile.d/conda.sh\""
 fi
 
-# uv / uv tool 的可执行文件位于 ~/.local/bin，必须让当前 shell 立刻可见，
-# 否则下面的 command -v 检测不到，重复执行时会反复安装。
-export PATH="$HOME/.local/bin:$PATH"
+stage_start 'uv and ascend-nputop' 6
+if has uv; then ok "uv: $(cmd_path uv)";
+elif has curl; then
+  installer="$(mktemp "${TMPDIR:-/tmp}/uv-install.XXXXXXXX")"; temp_paths+=("$installer")
+  fetch 'https://astral.sh/uv/install.sh' "$installer"
+  sh "$installer" --no-modify-path
+  export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+  if has uv; then ok "uv installed: $(cmd_path uv)"; else warn 'uv installer finished but executable not on PATH'; fi
+else warn 'uv missing; curl is required'; fi
+if has ascend-nputop; then ok "ascend-nputop: $(cmd_path ascend-nputop)";
+elif has uv; then
+  uv tool install ascend-nputop --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+  if has ascend-nputop; then ok "ascend-nputop installed: $(cmd_path ascend-nputop)"; else warn 'ascend-nputop installed but executable not found'; fi
+else warn 'ascend-nputop skipped because uv unavailable'; fi
 
-# 检查并安装 uv
-if ! command -v uv &> /dev/null; then
-    echo "  -> 安装 uv..."
-    pip install uv -i https://pypi.mirrors.ustc.edu.cn/simple/
+stage_start 'htop' 7
+if has htop; then ok "htop: $(cmd_path htop) ($(htop --version | head -n1))";
+elif [[ "$INSTALL_HTOP_FROM_SOURCE" == '1' ]]; then
+  prerequisites=(curl tar make gcc autoconf automake libtool pkg-config)
+  missing_build=()
+  for cmd in "${prerequisites[@]}"; do has "$cmd" || missing_build+=("$cmd"); done
+  if ((${#missing_build[@]})); then warn "Cannot compile htop; missing tools: ${missing_build[*]}";
+  else
+    build_dir="$(mktemp -d "${TMPDIR:-/tmp}/htop-build.XXXXXXXX")"; temp_paths+=("$build_dir")
+    fetch "$(github_url "https://github.com/htop-dev/htop/archive/refs/tags/${HTOP_VERSION}.tar.gz")" "$build_dir/htop.tar.gz"
+    tar -xf "$build_dir/htop.tar.gz" -C "$build_dir"
+    (
+      cd "$build_dir/htop-$HTOP_VERSION"
+      ./autogen.sh
+      ./configure --prefix="$HOME/.local"
+      make -j"$(nproc)"
+      make install
+    )
+    if has htop; then ok "htop installed: $(cmd_path htop)"; else warn 'htop build finished but binary not found'; fi
+  fi
 else
-    echo "  -> uv 已存在。"
+  if [[ $EUID -eq 0 ]] && has dnf; then
+    info 'Installing missing htop with dnf'
+    dnf install -y htop
+    if has htop; then ok "htop installed: $(cmd_path htop)"; else warn 'htop still missing after dnf'; fi
+  else
+    warn 'htop missing; ask administrator to install htop'
+    admin_packages+=(htop)
+    action 'Optional user-local compilation: INSTALL_HTOP_FROM_SOURCE=1 bash install-dump-v2.8.sh'
+  fi
 fi
 
-# 检查并安装 ascend-nputop
-if ! command -v ascend-nputop &> /dev/null; then
-    echo "  -> 安装 ascend-nputop..."
-    uv tool install ascend-nputop -i https://pypi.mirrors.ustc.edu.cn/simple/
-else
-    echo "  -> ascend-nputop 已存在。"
+stage_start 'Final checks' 8
+# Bash login shells normally read ~/.bash_profile, which may not source ~/.bashrc.
+# Avoid rewriting an existing user's profile; add a guarded entry only when requested.
+append_once "$HOME/.bashrc" 'export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"'
+if has fzf; then
+  # Modern fzf exposes shell integration through `fzf --bash` / `fzf --zsh`.
+  if fzf --bash >/dev/null 2>&1; then
+    append_once "$HOME/.bashrc" 'command -v fzf >/dev/null 2>&1 && eval "$(fzf --bash)"'
+  fi
+  if has zsh && fzf --zsh >/dev/null 2>&1; then
+    append_once "$HOME/.zshrc" 'command -v fzf >/dev/null 2>&1 && source <(fzf --zsh)'
+  fi
 fi
-
-# ---------------------------------------------------------
-# 7. 源码编译安装 htop
-# ---------------------------------------------------------
-echo "[7/8] 检查并编译 htop ${HTOP_VERSION}..."
-
-mkdir -p ~/code && cd ~/code
-
-HTOP_DIR="htop-${HTOP_VERSION}"
-# 包名带版本号，避免残留旧版本的 htop-latest.tar.gz 导致解压目录与 HTOP_DIR 不匹配
-HTOP_TAR="htop-${HTOP_VERSION}.tar.gz"
-
-if command -v htop &> /dev/null; then
-    INSTALLED_VER=$(htop --version | head -n1 | awk '{print $2}')
-    echo "  -> htop 已安装 (版本: $INSTALLED_VER)，跳过编译。"
+if has zsh && [[ "$AUTO_ZSH" == '1' ]]; then
+  # Interactive Bash login only. Non-interactive SSH commands and scripts stay in Bash.
+  add_block_once "$HOME/.bash_profile" 'env-init-auto-zsh' 'if [[ $- == *i* ]] && [[ -z "${ZSH_VERSION:-}" ]] && command -v zsh >/dev/null 2>&1; then
+  exec zsh -l
+fi'
+  info 'Next interactive Bash login will enter Zsh; current shell: exec zsh -l'
+elif has zsh; then
+  skip 'AUTO_ZSH=0; automatic Zsh switching disabled'
 else
-    echo "  -> htop 未检测到，开始编译..."
-
-    if [ ! -f "$HTOP_TAR" ]; then
-        echo "  -> 下载源码包..."
-        wget "${GH_PROXY}/https://github.com/htop-dev/htop/archive/refs/tags/${HTOP_VERSION}.tar.gz" -O "$HTOP_TAR"
-    fi
-
-    if [ ! -d "$HTOP_DIR" ]; then
-        echo "  -> 解压源码..."
-        tar xf "$HTOP_TAR"
-    fi
-
-    if [ -d "$HTOP_DIR" ]; then
-        cd "$HTOP_DIR"
-        ./autogen.sh
-        ./configure
-        make -j"$(nproc)"
-        sudo make install
-        cd ~/code
-    else
-        echo "错误: 解压后未找到目录 $HTOP_DIR，跳过 htop 编译。"
-    fi
+  warn 'Zsh unavailable: Bash remains the login shell; ask administrator to install zsh'
 fi
-
-# ---------------------------------------------------------
-# 8. 完成提示
-# ---------------------------------------------------------
-echo ""
-echo "========================================="
-echo "✅ 所有步骤执行完毕！"
-echo "========================================="
-echo "⚠️ 重要提示:"
-echo "1. 请关闭当前终端窗口，重新打开以加载 Zsh 和 Conda 配置。"
-echo "2. 或者在当前窗口执行: source ~/.zshrc && exec zsh -l"
-echo "========================================="
+summary

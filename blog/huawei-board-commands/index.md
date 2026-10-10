@@ -28,13 +28,191 @@ sudo usermod -aG root,wheel huluhuluu # 添加sudo权限 慎重
 passwd huluhuluu # 设置密码
 sudo su huluhuluu
 # 设置公钥
-cd /home/huluhuluu
+cd ~
 mkdir .ssh && cd .ssh
-touch authorized_keys && vim authorized_keys
+touch authorized_keys && vim authorized_keys # 放入公钥
 
 # 设置权限
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
+```
+- 如果根目录磁盘不够用户可能需要挂载到其他磁盘上，参考流程：
+```bash
+new_user=huluhuluu
+useradd -M -U -d "/home/$new_user" -s /bin/bash "$new_user" # 创建用户
+#  在目标目录下初始化家目录 下面是/home/data下初始化 需要自己替换
+install -d -m 700 -o "$new_user" -g "$new_user" \
+  "/home/data/$new_user"
+cp -a /etc/skel/. "/home/data/$new_user/"
+chown -R "$new_user:$new_user" "/home/data/$new_user"
+
+# 创建挂载入口；未挂载时仅 root 可访问
+install -d -m 700 -o root -g root "/home/$new_user"
+
+# 配置开机挂载，并立即挂载
+printf '%s %s none bind,x-systemd.requires-mounts-for=/home/data 0 0\n' \
+  "/home/data/$new_user" "/home/$new_user" >> /etc/fstab
+
+findmnt --verify --verbose
+systemctl daemon-reload
+systemctl start "$(systemd-escape --path --suffix=mount "/home/$new_user")"
+
+# 检查挂载情况
+findmnt -M /home/$new_user 
+```
+- 如果是迁移已有用户到新挂载目录(建议逐条执行)：
+```bash
+# 1. 设置变量、预复制
+user=huluhuluu
+source_dir="/home/$user" # 原目录
+target_dir="/home/data/$user" # 目标目录
+stamp="$(date +%Y%m%d-%H%M%S)" # 备份用的目录名
+backup_dir="/home/data/backups/${user}-${stamp}" # 备份目录
+old_dir="${source_dir}.pre-migration-${stamp}"
+
+# 目录检查 若这里失败，修正 source_dir 后重新执行
+test "$source_dir" = "$(getent passwd "$user" | cut -d: -f6)"
+test -d "$source_dir"
+mountpoint -q /home/data
+
+# 创建迁移目标和临时备份目录
+mkdir -p "$target_dir" "$backup_dir"
+chmod 700 "$backup_dir"
+
+# 保存原挂载配置，便于恢复
+cp -a /etc/fstab "$backup_dir/fstab"
+getent shadow "$user" |
+  cut -d: -f8 > "$backup_dir/account-expiry"
+# 运行期间预复制，减少维护窗口内需要复制的数据
+rsync -aHAXx --numeric-ids --info=progress2 \
+  "$source_dir/" "$target_dir/"
+
+# 2. 暂停登录、停止任务
+pkill -TERM -u "$user" || true # kill执行中的进程
+sleep 5
+pgrep -a -u "$user" || true  # 列出仍存活的用户进程
+
+# 检查其他账号是否还有进程使用源目录
+lsof -nP +D "$source_dir" || true
+
+3. **完整备份、最终同步和切换**
+# 复制一份完整临时备份
+rsync -aHAXx --numeric-ids --info=progress2 \
+  "$source_dir/" "$backup_dir/home/"
+
+# 最终同步到正式目标
+rsync -aHAXx --numeric-ids --delete-delay \
+  "$source_dir/" "$target_dir/"
+
+# 将原目录改名留存；此时还没有释放系统盘空间
+mv -- "$source_dir" "$old_dir"
+
+# 在原路径创建空挂载点
+install -d -o root -g root -m 700 "$source_dir"
+
+# 添加开机 bind mount 配置
+# 要求 /home/data 挂载完成后，再挂载用户家目录
+printf '%s %s none bind,x-systemd.requires-mounts-for=/home/data 0 0\n' \
+  "$target_dir" "$source_dir" >> /etc/fstab
+
+# 检查 fstab 配置是否有效
+findmnt --verify --verbose
+
+# 让 systemd 重新读取挂载配置
+systemctl daemon-reload
+
+# 启动该家目录对应的挂载单元，建立 bind mount
+systemctl start "$(systemd-escape --path --suffix=mount "$source_dir")"
+
+# 4. 验证并恢复登录
+findmnt -T "$source_dir"
+
+# 比较设备号和 inode
+# 两个路径应指向同一个目录；不一致则停止
+test "$(stat -Lc '%d:%i' "$source_dir")" = \
+     "$(stat -Lc '%d:%i' "$target_dir")"
+
+# 以该用户身份进入家目录，测试创建和删除文件
+sudo -u "$user" -H bash -c \
+  'cd ~ && touch .migration-test && rm .migration-test'
+
+# 输出正式目录和两份保留数据的位置，方便记录
+printf '迁移目标：%s\n临时备份：%s\n原目录：%s\n' \
+  "$target_dir" "$backup_dir" "$old_dir"
+```
+- 如果是已有目录但是没有用户，需要创建用户并且绑定目录 然后做目录的挂载绑定：
+```bash
+# 1. 创建账号、预复制
+user=swj
+source_dir="/home/$user" # 原目录
+target_dir="/home/data/$user" # 目标目录
+stamp="$(date +%Y%m%d-%H%M%S)"
+backup_dir="/home/data/backups/${user}-${stamp}"
+old_dir="${source_dir}.pre-migration-${stamp}"
+
+# 确认绑定位置
+mountpoint -q /home/data
+
+# 创建账号，登记已有家目录路径，不自动创建目录
+# 暂时设置为过期，迁移完成后再允许登录
+useradd -M -U -e 1970-01-02 \
+  -d "$source_dir" -s /bin/bash "$user"
+
+mkdir -p "$target_dir" "$backup_dir"
+chmod 700 "$backup_dir"
+cp -a /etc/fstab "$backup_dir/fstab"
+
+# 预复制，保留文件原来的权限、属主等
+rsync -aHAXx --numeric-ids --info=progress2 \
+  "$source_dir/" "$target_dir/"
+
+# 2. 查看占用目录的进程
+lsof -nP +D "$source_dir" || true
+# 手动kill 原进程可能与root有关
+
+# 3. 备份 同步
+# 停写后的原始备份，保留原属主
+rsync -aHAXx --numeric-ids --info=progress2 \
+  "$source_dir/" "$backup_dir/home/"
+
+# 最终同步并按内容校验
+rsync -aHAXx --numeric-ids --delete-delay \
+  "$source_dir/" "$target_dir/"
+
+# 补齐新用户默认配置，不覆盖已有同名文件
+cp -an /etc/skel/. "$target_dir/"
+
+# 将迁移目标交给新用户；原目录和备份保持原属主
+chown -R "$user:$user" "$target_dir"
+chmod 700 "$target_dir"
+
+# 4. 建立绑定、启用账号
+# 保留系统盘原目录
+mv -- "$source_dir" "$old_dir"
+install -d -o root -g root -m 700 "$source_dir"
+
+# 配置开机绑定
+printf '%s %s none bind,x-systemd.requires-mounts-for=/home/data 0 0\n' \
+  "$target_dir" "$source_dir" >> /etc/fstab
+
+findmnt --verify --verbose
+systemctl daemon-reload
+systemctl start "$(systemd-escape --path --suffix=mount "$source_dir")"
+
+# 验证挂载
+findmnt -T "$source_dir"
+test "$(stat -Lc '%d:%i' "$source_dir")" = \
+     "$(stat -Lc '%d:%i' "$target_dir")"
+
+# 取消临时过期设置，并设置登录密码
+usermod --expiredate -1 "$user"
+passwd "$user"
+
+# 验证新用户可以使用家目录
+sudo -u "$user" -H bash -c \
+  'cd ~ && pwd && touch .migration-test && rm .migration-test'
+
+printf '备份：%s\n原目录：%s\n' "$backup_dir" "$old_dir"
 ```
 
 ### 1.2 配置

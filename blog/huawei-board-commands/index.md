@@ -58,7 +58,10 @@ systemctl daemon-reload
 systemctl start "$(systemd-escape --path --suffix=mount "/home/$new_user")"
 
 # 检查挂载情况
-findmnt -M /home/$new_user 
+findmnt -M /home/$new_user
+
+sudo usermod -aG HwHiAiUser,docker $new_user
+sudo usermod -aG root,wheel $new_user # 添加sudo权限 慎重
 ```
 - 如果是迁移已有用户到新挂载目录(建议逐条执行)：
 ```bash
@@ -139,6 +142,9 @@ sudo -u "$user" -H bash -c \
 # 输出正式目录和两份保留数据的位置，方便记录
 printf '迁移目标：%s\n临时备份：%s\n原目录：%s\n' \
   "$target_dir" "$backup_dir" "$old_dir"
+
+sudo usermod -aG HwHiAiUser,docker $user
+sudo usermod -aG root,wheel $user # 添加sudo权限 慎重
 ```
 - 如果是已有目录但是没有用户，需要创建用户并且绑定目录 然后做目录的挂载绑定：
 ```bash
@@ -213,6 +219,8 @@ sudo -u "$user" -H bash -c \
   'cd ~ && pwd && touch .migration-test && rm .migration-test'
 
 printf '备份：%s\n原目录：%s\n' "$backup_dir" "$old_dir"
+sudo usermod -aG HwHiAiUser,docker $user
+sudo usermod -aG root,wheel $user # 添加sudo权限 慎重
 ```
 
 ### 1.2 配置
